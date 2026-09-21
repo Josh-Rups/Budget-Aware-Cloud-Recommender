@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Recommender</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="top-header">
+
+        <button id="homeButton" class="brand" type="button">
+
+            <div class="brand-icon">
+                ☁
+            </div>
+
+            <div class="brand-text">
+                <strong>Cloud Recommender</strong>
+                <span>Budget-aware AWS planning</span>
+            </div>
+
+        </button>
+
+        <div class="version-badge">
+            Prototype V1
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         PROGRESS / WORKFLOW
+    ====================================================== -->
+
+    <section class="workflow-wrapper">
+
+        <div class="workflow-progress">
+
+            <div class="workflow-line">
+                <div
+                    class="workflow-line-fill"
+                    id="progressFill">
+                </div>
+            </div>
+
+
+            <div class="workflow-step active">
+
+                <div class="step-circle">1</div>
+
+                <div class="step-info">
+                    <strong>Describe</strong>
+                    <span>Your application</span>
+                </div>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-circle">2</div>
+
+                <div class="step-info">
+                    <strong>Analyze</strong>
+                    <span>AI requirements</span>
+                </div>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-circle">3</div>
+
+                <div class="step-info">
+                    <strong>Confirm</strong>
+                    <span>Review details</span>
+                </div>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-circle">4</div>
+
+                <div class="step-info">
+                    <strong>Compare</strong>
+                    <span>AWS options</span>
+                </div>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-circle">5</div>
+
+                <div class="step-info">
+                    <strong>Recommend</strong>
+                    <span>Best fit</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <main>
+
+        <!-- =================================================
+             SCREEN 1 - DESCRIBE
+        ================================================== -->
+
+        <section
+            id="describeScreen"
+            class="screen describe-screen">
+
+            <div class="describe-container">
+
+                <div class="hero-copy">
+
+                    <span class="eyebrow">
+                        AWS ARCHITECTURE RECOMMENDER
+                    </span>
+
+                    <h1>
+                        Plan your AWS architecture
+                        <span>before you build.</span>
+                    </h1>
+
+                    <p>
+                        Describe your application and budget.
+                        Get AWS architecture options based on
+                        your requirements.
+                    </p>
+
+                </div>
+
+
+                <div class="planner-card">
+
+                    <div class="planner-heading">
+
+                        <div class="heading-icon">
+                            ✦
+                        </div>
+
+                        <div>
+                            <span class="step-label">
+                                YOUR APPLICATION
+                            </span>
+
+                            <h2>
+                                What are you planning to build?
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="description-field">
+
+                        <textarea
+                            id="appDescription"
+                            maxlength="1000"
+                            placeholder="Example: I want to build a student portal for about 2,000 users. It needs PostgreSQL, file storage, and standard availability."
+                        ></textarea>
+
+                        <span class="character-counter">
+                            <span id="characterCount">0</span>/1000
+                        </span>
+
+                    </div>
+
+
+                    <div class="planner-bottom">
+
+                        <div class="budget-group">
+
+                            <label for="budget">
+                                Monthly AWS budget
+                            </label>
+
+                            <div class="budget-input">
+
+                                <span class="dollar">$</span>
+
+                                <input
+                                    id="budget"
+                                    type="number"
+                                    value="300"
+                                    min="1">
+
+                                <span class="month">
+                                    / month
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            id="analyzeButton"
+                            class="primary-button analyze-button"
+                            type="button">
+
+                            Analyze requirements
+                            <span>→</span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="examples">
+
+                    <span>
+                        Try an example
+                    </span>
+
+                    <button
+                        class="example-button"
+                        type="button"
+                        data-example="I want to build a student portal for about 2,000 users. It needs PostgreSQL, file storage, and standard availability.">
+
+                        Student portal
+
+                    </button>
+
+                    <button
+                        class="example-button"
+                        type="button"
+                        data-example="I want to build an e-commerce website for about 5,000 users. It needs a database, product image storage, and high availability.">
+
+                        E-commerce
+
+                    </button>
+
+                    <button
+                        class="example-button"
+                        type="button"
+                        data-example="I want to build a serverless image processing application that resizes uploaded images into small, medium, and large versions.">
+
+                        Image processing
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SCREEN 2 - LOADING
+        ================================================== -->
+
+        <section
+            id="loadingScreen"
+            class="screen loading-screen hidden">
+
+            <div class="loading-card">
+
+                <div class="ai-loader">
+
+                    <div class="loader-center">
+                        AI
+                    </div>
+
+                </div>
+
+                <span class="eyebrow">
+                    AI REQUIREMENT ANALYSIS
+                </span>
+
+                <h2>
+                    Understanding your application
+                </h2>
+
+                <p id="loadingMessage">
+                    Reading your application description...
+                </p>
+
+                <div class="analysis-progress">
+
+                    <div
+                        id="loadingProgress"
+                        class="analysis-progress-fill">
+                    </div>
+
+                </div>
+
+                <span class="loading-note">
+                    Preparing your requirements
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SCREEN 3 - CONFIRM REQUIREMENTS
+        ================================================== -->
+
+        <section
+            id="analysisScreen"
+            class="screen analysis-screen hidden">
+
+            <div class="content-container">
+
+                <div class="page-heading">
+
+                    <span class="eyebrow">
+                        AI REQUIREMENT ANALYSIS
+                    </span>
+
+                    <h1>
+                        Here's what we understood
+                    </h1>
+
+                    <p>
+                        Review the details before comparing
+                        AWS architecture options.
+                    </p>
+
+                </div>
+
+
+                <div class="request-card">
+
+                    <span class="small-label">
+                        YOUR REQUEST
+                    </span>
+
+                    <p id="requestText"></p>
+
+                </div>
+
+
+                <div class="requirements-grid">
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">◫</div>
+                        <div>
+                            <span>Application type</span>
+                            <strong id="applicationType">Not specified</strong>
+                            <small id="applicationStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">♟</div>
+                        <div>
+                            <span>Expected users</span>
+                            <strong id="expectedUsers">Not specified</strong>
+                            <small id="usersStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">↗</div>
+                        <div>
+                            <span>Traffic pattern</span>
+                            <strong id="trafficRequirement">Not specified</strong>
+                            <small id="trafficStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">◉</div>
+                        <div>
+                            <span>Database</span>
+                            <strong id="databaseRequirement">Not specified</strong>
+                            <small id="databaseStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">▣</div>
+                        <div>
+                            <span>File storage</span>
+                            <strong id="storageRequirement">Not specified</strong>
+                            <small id="storageStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">✓</div>
+                        <div>
+                            <span>Availability</span>
+                            <strong id="availabilityRequirement">Not specified</strong>
+                            <small id="availabilityStatus">Needs input</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">◎</div>
+                        <div>
+                            <span>AWS Region</span>
+                            <strong id="regionRequirement">us-east-1</strong>
+                            <small id="regionStatus">Default</small>
+                        </div>
+                    </div>
+
+
+                    <div class="requirement-card">
+                        <div class="requirement-icon">$</div>
+                        <div>
+                            <span>Maximum budget</span>
+                            <strong id="budgetRequirement">$300 / month</strong>
+                            <small class="detected">✓ Provided</small>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="followupPanel"
+                    class="followup-panel">
+
+                    <div class="question-top">
+
+                        <div>
+
+                            <span
+                                id="questionCounter"
+                                class="question-counter">
+
+                                Question 1
+
+                            </span>
+
+                            <h2 id="questionTitle">
+                                How many users do you expect?
+                            </h2>
+
+                            <p id="questionHelp">
+                                Choose the closest estimate.
+                            </p>
+
+                        </div>
+
+                        <div class="ai-badge">
+                            AI follow-up
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="answerOptions"
+                        class="answer-options">
+                    </div>
+
+
+                    <div class="question-actions">
+
+                        <button
+                            id="skipButton"
+                            class="secondary-button"
+                            type="button">
+
+                            Not sure
+
+                        </button>
+
+
+                        <button
+                            id="nextQuestionButton"
+                            class="primary-button"
+                            type="button">
+
+                            Next question →
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="readyPanel"
+                    class="ready-panel hidden">
+
+                    <div class="ready-icon">
+                        ✓
+                    </div>
+
+                    <div>
+                        <strong>
+                            Requirements ready
+                        </strong>
+
+                        <p>
+                            You can now compare AWS architecture
+                            options based on these requirements.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="bottom-actions">
+
+                    <button
+                        id="editRequestButton"
+                        class="secondary-button"
+                        type="button">
+
+                        ← Back to description
+
+                    </button>
+
+
+                    <button
+                        id="confirmButton"
+                        class="primary-button"
+                        type="button"
+                        disabled>
+
+                        Confirm requirements →
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SCREEN 4 - COMPARE
+        ================================================== -->
+
+        <section
+            id="resultsScreen"
+            class="screen results-screen hidden">
+
+            <div class="results-container">
+
+                <div class="page-heading">
+
+                    <span class="eyebrow">
+                        ARCHITECTURE COMPARISON
+                    </span>
+
+                    <h1>
+                        Compare AWS approaches
+                    </h1>
+
+                    <p>
+                        Compare estimated cost, workload fit,
+                        scalability, management fit, and
+                        requirement fit.
+                    </p>
+
+                </div>
+
+
+                <div class="requirement-summary">
+
+                    <span>
+                        Application
+                        <strong id="resultApplication">
+                            Web Application
+                        </strong>
+                    </span>
+
+                    <span>
+                        Users
+                        <strong id="resultUsers">
+                            ~ 2,000
+                        </strong>
+                    </span>
+
+                    <span>
+                        Database
+                        <strong id="resultDatabase">
+                            PostgreSQL
+                        </strong>
+                    </span>
+
+                    <span>
+                        Storage
+                        <strong id="resultStorage">
+                            Required
+                        </strong>
+                    </span>
+
+                    <span>
+                        Availability
+                        <strong id="resultAvailability">
+                            Standard
+                        </strong>
+                    </span>
+
+                </div>
+
+
+                <div class="architecture-grid">
+
+                    <!-- SERVERLESS -->
+
+                    <article class="architecture-card">
+
+                        <div class="architecture-content">
+
+                            <span class="option-label">
+                                OPTION 1
+                            </span>
+
+
+                            <div class="architecture-title">
+
+                                <div class="service-main-icon lambda">
+                                    λ
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        Serverless
+                                    </h2>
+
+                                    <p>
+                                        Managed, usage-based services
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="cost-section">
+
+                                <span>
+                                    Estimated monthly cost
+                                </span>
+
+
+                                <div class="cost-row">
+
+                                    <strong class="price">
+                                        $<span id="serverlessCost">0</span>
+                                    </strong>
+
+
+                                    <span
+                                        id="serverlessBudgetFit"
+                                        class="budget-fit">
+
+                                        -
+
+                                    </span>
+
+                                </div>
+
+
+                                <small>
+                                    / month
+                                </small>
+
+                            </div>
+
+
+                            <div class="service-grid"></div>
+
+
+                            <div class="score-grid">
+
+                                <div>
+                                    <span>Budget fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Workload fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Scalability</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Management fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Requirement fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- CONTAINERS -->
+
+                    <article class="architecture-card">
+
+                        <div class="architecture-content">
+
+                            <span class="option-label">
+                                OPTION 2
+                            </span>
+
+
+                            <div class="architecture-title">
+
+                                <div class="service-main-icon">
+                                    ▥
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        Containers
+                                    </h2>
+
+                                    <p>
+                                        Container-based AWS architecture
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="cost-section">
+
+                                <span>
+                                    Estimated monthly cost
+                                </span>
+
+
+                                <div class="cost-row">
+
+                                    <strong class="price">
+                                        $<span id="containerCost">0</span>
+                                    </strong>
+
+
+                                    <span
+                                        id="containerBudgetFit"
+                                        class="budget-fit">
+
+                                        -
+
+                                    </span>
+
+                                </div>
+
+
+                                <small>
+                                    / month
+                                </small>
+
+                            </div>
+
+
+                            <div class="service-grid"></div>
+
+
+                            <div class="score-grid">
+
+                                <div>
+                                    <span>Budget fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Workload fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Scalability</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Management fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Requirement fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- EC2 -->
+
+                    <article class="architecture-card">
+
+                        <div class="architecture-content">
+
+                            <span class="option-label">
+                                OPTION 3
+                            </span>
+
+
+                            <div class="architecture-title">
+
+                                <div class="service-main-icon ec2">
+                                    EC2
+                                </div>
+
+                                <div>
+
+                                    <h2>
+                                        EC2
+                                    </h2>
+
+                                    <p>
+                                        Traditional virtual servers
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="cost-section">
+
+                                <span>
+                                    Estimated monthly cost
+                                </span>
+
+
+                                <div class="cost-row">
+
+                                    <strong class="price">
+                                        $<span id="vmCost">0</span>
+                                    </strong>
+
+
+                                    <span
+                                        id="vmBudgetFit"
+                                        class="budget-fit">
+
+                                        -
+
+                                    </span>
+
+                                </div>
+
+
+                                <small>
+                                    / month
+                                </small>
+
+                            </div>
+
+
+                            <div class="service-grid"></div>
+
+
+                            <div class="score-grid">
+
+                                <div>
+                                    <span>Budget fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Workload fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Scalability</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Management fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                                <div>
+                                    <span>Requirement fit</span>
+                                    <strong>-</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <div class="bottom-actions">
+
+                    <button
+                        id="backToAnalysisButton"
+                        class="secondary-button back-to-analysis"
+                        type="button">
+
+                        ← Back to requirements
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SCREEN 5 - RECOMMENDATION
+        ================================================== -->
+
+        <section
+            id="recommendationScreen"
+            class="screen recommendation-screen hidden">
+
+            <div class="recommendation-container">
+
+                <div class="recommendation-hero">
+
+                    <div class="recommendation-check">
+                        ✓
+                    </div>
+
+                    <span class="eyebrow">
+                        RECOMMENDED ARCHITECTURE
+                    </span>
+
+                    <h1 id="recommendationTitle">
+                        Recommended architecture
+                    </h1>
+
+                    <p id="recommendationSummary">
+                        Based on your requirements, budget,
+                        scalability, and management needs.
+                    </p>
+
+                </div>
+
+
+                <div class="final-card">
+
+                    <div class="final-card-heading">
+
+                        <div>
+
+                            <span class="small-label">
+                                RECOMMENDATION
+                            </span>
+
+                            <h2 id="recommendedArchitectureName">
+                                Architecture
+                            </h2>
+
+                        </div>
+
+
+                        <span class="recommended-pill">
+                            Best fit
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="recommendedServices"
+                        class="final-services">
+                    </div>
+
+
+                    <div class="why-card">
+
+                        <h3>
+                            Why this option?
+                        </h3>
+
+                        <ul id="recommendationReasons">
+                        </ul>
+
+                    </div>
+                    <!-- =================================================
+     ASSUMPTIONS
+================================================== -->
+
+<div
+    id="assumptionsCard"
+    class="assumptions-card hidden">
+
+    <div class="assumptions-heading">
+
+        <span class="assumptions-icon">
+            i
+        </span>
+
+        <div>
+
+            <h3>
+                Assumptions used
+            </h3>
+
+            <p>
+                These assumptions were used where
+                requirements were missing or uncertain.
+            </p>
+
+        </div>
+
+    </div>
+
+    <ul id="assumptionsList">
+    </ul>
+
+</div>
+
+
+                    <div class="recommendation-stats">
+
+                        <div>
+
+                            <span>
+                                Estimated cost
+                            </span>
+
+                            <strong id="recommendedArchitectureCost">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Your budget
+                            </span>
+
+                            <strong id="recommendationBudget">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Expected users
+                            </span>
+
+                            <strong id="recommendationUsers">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Database
+                            </span>
+
+                            <strong id="recommendationDatabase">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Availability
+                            </span>
+
+                            <strong id="recommendationAvailability">
+                                -
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="bottom-actions">
+
+                    <button
+                        id="backToResultsButton"
+                        class="secondary-button back-to-results"
+                        type="button">
+
+                        ← Back to comparison
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
