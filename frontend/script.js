@@ -31,6 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressFill = document.getElementById("progressFill");
     const progressSteps = document.querySelectorAll(".workflow-step");
 
+    // =====================================================
+    // API CONFIGURATION
+    // =====================================================
+
+    const API_BASE_URL =
+        "https://budget-aware-cloud-recommender.onrender.com";
 
     // =====================================================
     // STATE
@@ -244,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const response =
                 await fetch(
-                    "http://127.0.0.1:8080/api/analyze",
+                    `${API_BASE_URL}/api/analyze`,
                     {
                         method: "POST",
 
@@ -1271,7 +1277,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const architectureResponse =
                 await fetch(
-                    "http://127.0.0.1:8080/api/architectures",
+                    `${API_BASE_URL}/api/architectures`,
                     {
                         method: "POST",
 
@@ -1320,7 +1326,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const costResponse =
                 await fetch(
-                    "http://127.0.0.1:8080/api/costs",
+                    `${API_BASE_URL}/api/costs`,
                     {
                         method: "POST",
 
@@ -1364,7 +1370,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const evaluationResponse =
                 await fetch(
-                    "http://127.0.0.1:8080/api/evaluate",
+                    `${API_BASE_URL}/api/evaluate`,
                     {
                         method: "POST",
 
@@ -1426,7 +1432,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const recommendationResponse =
                     await fetch(
-                        "http://127.0.0.1:8080/api/recommendation",
+                        `${API_BASE_URL}/api/recommendation`,
                         {
                             method: "POST",
 
