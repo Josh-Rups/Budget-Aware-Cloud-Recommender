@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -39,6 +40,20 @@ class ApplicationRequirements(BaseModel):
     # "low"
     # "medium"
     # "high"
+
+    # User-selected decision priorities.
+    # These influence evaluation but do not directly
+    # choose an architecture.
+    user_priorities: List[str] = Field(
+        default_factory=list
+    )
+    # Possible values:
+    # "cost"
+    # "low_management"
+    # "infrastructure_control"
+    # "scalability"
+    # "availability"
+    # "balanced"
 
     region: str = "us-east-1"
 

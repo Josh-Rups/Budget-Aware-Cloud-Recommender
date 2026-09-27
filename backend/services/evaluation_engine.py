@@ -11,14 +11,145 @@ from backend.models.evaluation import (
 
 
 # =========================================================
-# SCORING WEIGHTS
+# DEFAULT SCORING WEIGHTS
 # =========================================================
 
-BUDGET_WEIGHT = 0.30
-WORKLOAD_FIT_WEIGHT = 0.25
-SCALABILITY_WEIGHT = 0.20
-MANAGEMENT_WEIGHT = 0.15
-REQUIREMENT_FIT_WEIGHT = 0.10
+DEFAULT_WEIGHTS = {
+    "budget": 0.30,
+    "workload": 0.25,
+    "scalability": 0.20,
+    "management": 0.15,
+    "requirements": 0.10
+}
+
+
+# Amount added to a criterion when the user explicitly
+# selects it as a priority.
+PRIORITY_BOOST = 0.10
+
+
+# =========================================================
+# USER-AWARE EVALUATION WEIGHTS
+# =========================================================
+
+def get_evaluation_weights(
+    requirements: ApplicationRequirements
+):
+
+    """
+    Return evaluation weights based on the user's
+    explicitly selected priorities.
+
+    The technical scoring rules do not change.
+
+    User priorities only influence how much importance
+    each criterion receives in the final weighted score.
+
+    The frontend allows a maximum of two priorities.
+
+    "balanced" uses the default scoring weights.
+    """
+
+    weights = DEFAULT_WEIGHTS.copy()
+
+    priorities = [
+        priority.lower().strip()
+
+        for priority
+        in (
+            requirements.user_priorities
+            or []
+        )
+    ]
+
+
+    # -----------------------------------------------------
+    # BALANCED / NO PRIORITIES
+    # -----------------------------------------------------
+
+    if (
+        not priorities
+        or "balanced" in priorities
+    ):
+
+        return weights
+
+
+    # -----------------------------------------------------
+    # APPLY USER PRIORITIES
+    # -----------------------------------------------------
+
+    for priority in priorities:
+
+        # Lowest cost
+        if priority == "cost":
+
+            weights["budget"] += (
+                PRIORITY_BOOST
+            )
+
+
+        # High scalability
+        elif priority == "scalability":
+
+            weights["scalability"] += (
+                PRIORITY_BOOST
+            )
+
+
+        # Less management or maximum control
+        #
+        # Both are evaluated through the management/control
+        # criterion. The actual score still depends on the
+        # user's management and infrastructure-control
+        # requirements.
+        elif priority in [
+            "low_management",
+            "infrastructure_control"
+        ]:
+
+            weights["management"] += (
+                PRIORITY_BOOST
+            )
+
+
+        # High availability is evaluated as part of
+        # requirement fit.
+        elif priority == "availability":
+
+            weights["requirements"] += (
+                PRIORITY_BOOST
+            )
+
+
+    # -----------------------------------------------------
+    # NORMALIZE WEIGHTS
+    # -----------------------------------------------------
+    #
+    # Priority boosts temporarily make the weights add
+    # to more than 1.0.
+    #
+    # Normalize them so all weights add back to 1.0.
+    # -----------------------------------------------------
+
+    total_weight = sum(
+        weights.values()
+    )
+
+
+    normalized_weights = {
+
+        name: round(
+            value / total_weight,
+            4
+        )
+
+        for name, value
+        in weights.items()
+    }
+
+
+    return normalized_weights
 
 
 # =========================================================
@@ -32,12 +163,14 @@ def calculate_budget_score(
 
     usage_ratio = cost / budget
 
+
     if usage_ratio <= 0.25:
 
         return 10.0, (
             "Estimated cost uses 25% or less "
             "of the monthly budget."
         )
+
 
     if usage_ratio <= 0.50:
 
@@ -46,12 +179,14 @@ def calculate_budget_score(
             "of the monthly budget."
         )
 
+
     if usage_ratio <= 0.75:
 
         return 6.0, (
             "Estimated cost uses 75% or less "
             "of the monthly budget."
         )
+
 
     if usage_ratio <= 1.0:
 
@@ -60,12 +195,14 @@ def calculate_budget_score(
             "but leaves limited remaining budget."
         )
 
+
     if usage_ratio <= 1.10:
 
         return 3.0, (
             "Estimated cost is slightly over "
             "the monthly budget."
         )
+
 
     if usage_ratio <= 1.25:
 
@@ -74,12 +211,14 @@ def calculate_budget_score(
             "budget by up to 25%."
         )
 
+
     if usage_ratio <= 1.50:
 
         return 1.0, (
             "Estimated cost significantly exceeds "
             "the monthly budget."
         )
+
 
     return 0.0, (
         "Estimated cost is far above "
@@ -124,6 +263,7 @@ def calculate_workload_fit_score(
                 "event-driven workload."
             )
 
+
         if architecture_id == "containers":
 
             return 6.0, (
@@ -131,6 +271,7 @@ def calculate_workload_fit_score(
                 "application, but they are not the "
                 "closest match."
             )
+
 
         return 4.0, (
             "EC2 can support the workload, but requires "
@@ -152,6 +293,7 @@ def calculate_workload_fit_score(
                 "matches the containerized workload."
             )
 
+
         if architecture_id == "virtual-machines":
 
             return 6.0, (
@@ -159,6 +301,7 @@ def calculate_workload_fit_score(
                 "more infrastructure management than "
                 "the managed container option."
             )
+
 
         return 3.0, (
             "Serverless does not directly match the "
@@ -179,6 +322,7 @@ def calculate_workload_fit_score(
                 "server workload."
             )
 
+
         if architecture_id == "containers":
 
             return 6.0, (
@@ -186,6 +330,7 @@ def calculate_workload_fit_score(
                 "but do not directly match the requested "
                 "traditional server model."
             )
+
 
         return 2.0, (
             "Serverless does not closely match the "
@@ -231,13 +376,16 @@ def calculate_scalability_score(
         .strip()
     )
 
+
     if scalability == "high":
 
         score = 10.0
 
+
     elif scalability == "medium":
 
         score = 7.0
+
 
     else:
 
@@ -279,6 +427,7 @@ def calculate_scalability_score(
                 f"well suited to {traffic} traffic."
             )
 
+
         else:
 
             reason = (
@@ -287,6 +436,7 @@ def calculate_scalability_score(
                 f"The {traffic} traffic pattern reduces "
                 f"its scalability fit."
             )
+
 
     else:
 
@@ -332,6 +482,7 @@ def calculate_management_score(
 
 
     component_scores = []
+
     reasons = []
 
 
@@ -352,6 +503,7 @@ def calculate_management_score(
                 "for minimal infrastructure management."
             )
 
+
         elif architecture_id == "containers":
 
             component_scores.append(
@@ -362,6 +514,7 @@ def calculate_management_score(
                 "Managed containers require some "
                 "infrastructure management."
             )
+
 
         else:
 
@@ -388,6 +541,7 @@ def calculate_management_score(
                 "for some infrastructure management."
             )
 
+
         elif architecture_id == "serverless":
 
             component_scores.append(
@@ -399,6 +553,7 @@ def calculate_management_score(
                 "infrastructure management than the "
                 "user is willing to handle."
             )
+
 
         else:
 
@@ -425,6 +580,7 @@ def calculate_management_score(
                 "for direct infrastructure management."
             )
 
+
         elif architecture_id == "containers":
 
             component_scores.append(
@@ -435,6 +591,7 @@ def calculate_management_score(
                 "Containers provide some infrastructure "
                 "management and control."
             )
+
 
         else:
 
@@ -465,6 +622,7 @@ def calculate_management_score(
                 "little direct infrastructure control."
             )
 
+
         elif architecture_id == "containers":
 
             component_scores.append(
@@ -476,6 +634,7 @@ def calculate_management_score(
                 "control while keeping much of the "
                 "platform managed."
             )
+
 
         else:
 
@@ -502,6 +661,7 @@ def calculate_management_score(
                 "of infrastructure control."
             )
 
+
         elif architecture_id == "virtual-machines":
 
             component_scores.append(
@@ -512,6 +672,7 @@ def calculate_management_score(
                 "EC2 provides more direct infrastructure "
                 "control than a medium preference requires."
             )
+
 
         else:
 
@@ -538,6 +699,7 @@ def calculate_management_score(
                 "system control."
             )
 
+
         elif architecture_id == "containers":
 
             component_scores.append(
@@ -549,6 +711,7 @@ def calculate_management_score(
                 "control but not full instance-level "
                 "control."
             )
+
 
         else:
 
@@ -584,6 +747,7 @@ def calculate_management_score(
                 "management."
             )
 
+
         if effort == "medium":
 
             return 7.0, (
@@ -591,6 +755,7 @@ def calculate_management_score(
                 "preference was provided. This architecture "
                 "requires a moderate level of management."
             )
+
 
         return 7.0, (
             "No management or infrastructure control "
@@ -689,6 +854,7 @@ def calculate_requirement_fit_score(
                 "Supports the requested database."
             )
 
+
         else:
 
             score -= 3
@@ -720,6 +886,7 @@ def calculate_requirement_fit_score(
                 "Supports the requested file storage."
             )
 
+
         else:
 
             score -= 3
@@ -749,6 +916,7 @@ def calculate_requirement_fit_score(
                 "Architecture is well suited to "
                 "high-availability deployment."
             )
+
 
         elif (
             architecture.id ==
@@ -795,6 +963,15 @@ def evaluate_architecture(
     architecture_cost: ArchitectureCost,
     requirements: ApplicationRequirements
 ) -> ArchitectureEvaluation:
+
+
+    # -----------------------------------------------------
+    # GET USER-AWARE WEIGHTS
+    # -----------------------------------------------------
+
+    weights = get_evaluation_weights(
+        requirements
+    )
 
 
     # -----------------------------------------------------
@@ -864,27 +1041,27 @@ def evaluate_architecture(
     total_score = (
 
         budget_score *
-        BUDGET_WEIGHT
+        weights["budget"]
 
         +
 
         workload_score *
-        WORKLOAD_FIT_WEIGHT
+        weights["workload"]
 
         +
 
         scalability_score *
-        SCALABILITY_WEIGHT
+        weights["scalability"]
 
         +
 
         management_score *
-        MANAGEMENT_WEIGHT
+        weights["management"]
 
         +
 
         requirement_score *
-        REQUIREMENT_FIT_WEIGHT
+        weights["requirements"]
     )
 
 
@@ -903,35 +1080,35 @@ def evaluate_architecture(
         EvaluationCriterion(
             name="Budget fit",
             score=budget_score,
-            weight=BUDGET_WEIGHT,
+            weight=weights["budget"],
             reason=budget_reason
         ),
 
         EvaluationCriterion(
             name="Workload fit",
             score=workload_score,
-            weight=WORKLOAD_FIT_WEIGHT,
+            weight=weights["workload"],
             reason=workload_reason
         ),
 
         EvaluationCriterion(
             name="Scalability",
             score=scalability_score,
-            weight=SCALABILITY_WEIGHT,
+            weight=weights["scalability"],
             reason=scalability_reason
         ),
 
         EvaluationCriterion(
-            name="Management effort",
+            name="Management fit",
             score=management_score,
-            weight=MANAGEMENT_WEIGHT,
+            weight=weights["management"],
             reason=management_reason
         ),
 
         EvaluationCriterion(
             name="Requirement fit",
             score=requirement_score,
-            weight=REQUIREMENT_FIT_WEIGHT,
+            weight=weights["requirements"],
             reason=requirement_reason
         )
     ]
@@ -1037,9 +1214,9 @@ def select_recommended_architecture(
     #
     # The overall score already includes budget fit.
     #
-    # Therefore, technical suitability remains part of
-    # the recommendation even when no option can meet
-    # the requested budget.
+    # Technical suitability and user priorities remain
+    # part of the recommendation even when no option
+    # meets the requested budget.
     #
     # Budget overrun is used only as a tie-breaker.
     # =====================================================
@@ -1162,7 +1339,7 @@ if __name__ == "__main__":
 
 
     # =====================================================
-    # LOW-BUDGET TRADITIONAL SERVER TEST
+    # USER PRIORITY TEST
     # =====================================================
 
     test_requirements = (
@@ -1194,6 +1371,11 @@ if __name__ == "__main__":
 
             infrastructure_control=
                 "high",
+
+            user_priorities=[
+                "infrastructure_control",
+                "cost"
+            ],
 
             region=
                 "us-east-1",
@@ -1234,7 +1416,7 @@ if __name__ == "__main__":
     )
 
     print(
-        "LOW-BUDGET EVALUATION TEST"
+        "USER PRIORITY EVALUATION TEST"
     )
 
     print(
@@ -1245,6 +1427,20 @@ if __name__ == "__main__":
     print(
         f"Budget: "
         f"${test_requirements.budget:.2f}"
+    )
+
+
+    print(
+        "Priorities:",
+        test_requirements.user_priorities
+    )
+
+
+    print(
+        "Weights:",
+        get_evaluation_weights(
+            test_requirements
+        )
     )
 
 
@@ -1289,7 +1485,6 @@ if __name__ == "__main__":
                 f"{criterion.score}/10 "
                 f"(weight {criterion.weight})"
             )
-
 
             print(
                 f"    {criterion.reason}"

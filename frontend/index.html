@@ -32,7 +32,7 @@
         </button>
 
         <div class="version-badge">
-            Prototype V1
+            MVP v0.1
         </div>
 
     </header>
@@ -142,9 +142,7 @@
                     </h1>
 
                     <p>
-                        Describe your application and budget.
-                        Get AWS architecture options based on
-                        your requirements.
+                        Describe your application and budget. Compare AWS architecture options and get a recommendation.
                     </p>
 
                 </div>
@@ -199,10 +197,12 @@
                                 <span class="dollar">$</span>
 
                                 <input
-                                    id="budget"
-                                    type="number"
-                                    value="300"
-                                    min="1">
+                                        type="number"
+                                        id="budget"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Amount"
+                                    >
 
                                 <span class="month">
                                     / month
@@ -428,13 +428,22 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">$</div>
-                        <div>
-                            <span>Maximum budget</span>
-                            <strong id="budgetRequirement">$300 / month</strong>
-                            <small class="detected">✓ Provided</small>
-                        </div>
-                    </div>
+    <div class="requirement-icon">$</div>
+
+    <div>
+        <span>Maximum budget</span>
+
+        <strong id="budgetRequirement">
+            Not provided
+        </strong>
+
+        <small
+            id="budgetRequirementStatus"
+            class="needs-input">
+            Needs input
+        </small>
+    </div>
+</div>
 
                 </div>
 
@@ -502,7 +511,165 @@
                     </div>
 
                 </div>
+    <!-- =================================================
+     USER PRIORITIES
+================================================== -->
 
+<div
+    id="priorityPanel"
+    class="priority-panel hidden">
+
+    <div class="priority-heading">
+
+        <div>
+
+            <span class="question-counter">
+                YOUR PRIORITIES
+            </span>
+
+            <h2>
+                What matters most to you?
+            </h2>
+
+            <p>
+                Choose up to two priorities.
+                Your choices will influence the recommendation
+                while technical requirements and budget
+                constraints are still evaluated.
+            </p>
+
+        </div>
+
+
+        <span
+            id="priorityCount"
+            class="priority-count">
+
+            0 of 2 selected
+
+        </span>
+
+    </div>
+
+
+    <div
+        id="priorityOptions"
+        class="priority-options">
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="cost">
+
+            <strong>
+                Lowest cost
+            </strong>
+
+            <span>
+                Give more importance to staying
+                well within budget.
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="low_management">
+
+            <strong>
+                Less management
+            </strong>
+
+            <span>
+                Prefer services that reduce server
+                and infrastructure management.
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="infrastructure_control">
+
+            <strong>
+                Maximum control
+            </strong>
+
+            <span>
+                Prefer direct control of servers,
+                operating systems, and infrastructure.
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="scalability">
+
+            <strong>
+                High scalability
+            </strong>
+
+            <span>
+                Give more importance to handling
+                growth and changing traffic.
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="availability">
+
+            <strong>
+                High availability
+            </strong>
+
+            <span>
+                Give more importance to
+                minimizing downtime.
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="priority-option"
+            data-priority="balanced">
+
+            <strong>
+                Balanced / recommend for me
+            </strong>
+
+            <span>
+                Use the system's standard
+                evaluation weights.
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <p
+        id="priorityHelp"
+        class="priority-help">
+
+        Select at least one option to continue.
+
+    </p>
+
+</div>            
 
                 <div
                     id="readyPanel"
@@ -518,8 +685,8 @@
                         </strong>
 
                         <p>
-                            You can now compare AWS architecture
-                            options based on these requirements.
+                            Your requirements and priorities are ready.
+                            You can now compare AWS architecture options.
                         </p>
                     </div>
 
@@ -960,10 +1127,7 @@
             <div class="recommendation-container">
 
                 <div class="recommendation-hero">
-
-                    <div class="recommendation-check">
-                        ✓
-                    </div>
+                    <div class="recommendation-check">✓</div>
 
                     <span class="eyebrow">
                         RECOMMENDED ARCHITECTURE
@@ -974,19 +1138,17 @@
                     </h1>
 
                     <p id="recommendationSummary">
-                        Based on your requirements, budget,
-                        scalability, and management needs.
+                        Recommendation based on your technical requirements,
+                         budget, priorities, estimated AWS costs,
+                             and architecture evaluation.
                     </p>
-
                 </div>
 
 
                 <div class="final-card">
 
                     <div class="final-card-heading">
-
                         <div>
-
                             <span class="small-label">
                                 RECOMMENDATION
                             </span>
@@ -994,14 +1156,11 @@
                             <h2 id="recommendedArchitectureName">
                                 Architecture
                             </h2>
-
                         </div>
 
-
-                        <span class="recommended-pill">
-                            Best fit
+                        <span  id="recommendationFitBadge" class="recommended-pill">
+                            Recommended fit
                         </span>
-
                     </div>
 
 
@@ -1011,124 +1170,177 @@
                     </div>
 
 
-                    <div class="why-card">
+                    <!-- USER PRIORITIES -->
 
+                    <div
+                        id="recommendationPriorities"
+                        class="recommendation-priorities hidden">
+
+                        <span class="small-label">
+                            YOUR PRIORITIES
+                        </span>
+
+                        <div
+                            id="recommendationPriorityList"
+                            class="recommendation-priority-list">
+                        </div>
+                    </div>
+
+
+                    <!-- WHY THIS OPTION -->
+
+                    <div class="why-card">
                         <h3>
                             Why this option?
                         </h3>
 
                         <ul id="recommendationReasons">
                         </ul>
-
                     </div>
-                    <!-- =================================================
-     ASSUMPTIONS
+
+
+<!-- =================================================
+     CONSTRAINTS & CONFLICTS
 ================================================== -->
 
 <div
-    id="assumptionsCard"
-    class="assumptions-card hidden">
+    id="conflictsCard"
+    class="conflicts-card hidden">
 
-    <div class="assumptions-heading">
-
-        <span class="assumptions-icon">
-            i
-        </span>
-
+    <div class="conflicts-heading">
         <div>
+            <span class="small-label">
+                CONSTRAINTS &amp; CONFLICTS
+            </span>
 
-            <h3>
-                Assumptions used
+            <h3  id="conflictsTitle">
+                Important trade-offs in your requirements
             </h3>
 
             <p>
-                These assumptions were used where
-                requirements were missing or uncertain.
+               Review these trade-offs before choosing an architecture.
+                 Some requirements or priorities may compete with each other..
             </p>
+        </div>
+    </div>
 
+    <div
+        id="conflictsList"
+        class="conflicts-list">
+    </div>
+
+</div>
+
+<!-- =================================================
+     TRADE-OFF / WHAT-IF ANALYSIS
+================================================== -->
+
+<div
+    id="tradeoffCard"
+    class="tradeoff-card hidden">
+
+    <div class="tradeoff-heading">
+
+        <div>
+            <span class="small-label">
+                EXPLORE ALTERNATIVES
+            </span>
+
+            <h3>
+                What if you choose another architecture?
+            </h3>
+
+            <p>
+                Compare what you could gain or give up
+                by choosing another AWS approach.
+            </p>
         </div>
 
     </div>
 
-    <ul id="assumptionsList">
-    </ul>
+    <div
+        id="tradeoffAlternatives"
+        class="tradeoff-alternatives">
+    </div>
 
 </div>
+            
+
+
+                    <!-- ASSUMPTIONS -->
+
+                    <div
+                        id="assumptionsCard"
+                        class="assumptions-card hidden">
+
+                        <div class="assumptions-heading">
+                            <span class="assumptions-icon">
+                                i
+                            </span>
+
+                            <div>
+                                <h3>
+                                    Assumptions used
+                                </h3>
+
+                                <p>
+                                    These assumptions were used where
+                                    requirements were missing or uncertain.
+                                </p>
+                            </div>
+                        </div>
+
+                        <ul id="assumptionsList">
+                        </ul>
+                    </div>
 
 
                     <div class="recommendation-stats">
 
                         <div>
-
-                            <span>
-                                Estimated cost
-                            </span>
+                            <span>Estimated cost</span>
 
                             <strong id="recommendedArchitectureCost">
                                 -
                             </strong>
 
+                            <small
+                                id="recommendationCostStatus"
+                                class="recommendation-cost-status">
+                            </small>
                         </div>
 
-
                         <div>
-
-                            <span>
-                                Your budget
-                            </span>
-
-                            <strong id="recommendationBudget">
-                                -
-                            </strong>
-
+                            <span>Your budget</span>
+                            <strong id="recommendationBudget">-</strong>
                         </div>
 
-
                         <div>
-
-                            <span>
-                                Expected users
-                            </span>
-
-                            <strong id="recommendationUsers">
-                                -
-                            </strong>
-
+                            <span>Expected users</span>
+                            <strong id="recommendationUsers">-</strong>
                         </div>
 
-
                         <div>
-
-                            <span>
-                                Database
-                            </span>
-
-                            <strong id="recommendationDatabase">
-                                -
-                            </strong>
-
+                            <span>Database</span>
+                            <strong id="recommendationDatabase">-</strong>
                         </div>
 
-
                         <div>
-
-                            <span>
-                                Availability
-                            </span>
-
-                            <strong id="recommendationAvailability">
-                                -
-                            </strong>
-
+                            <span>Availability</span>
+                            <strong id="recommendationAvailability">-</strong>
                         </div>
 
                     </div>
+
+                    <p class="cost-disclaimer">
+                        Estimated using predefined AWS pricing assumptions.
+                        Actual AWS charges may vary.
+                    </p>
 
                 </div>
 
 
                 <div class="bottom-actions">
-
                     <button
                         id="backToResultsButton"
                         class="secondary-button back-to-results"
@@ -1137,10 +1349,18 @@
                         ← Back to comparison
 
                     </button>
-
                 </div>
 
             </div>
+
+        <div class="start-over-container">
+    <button
+        id="startOverButton"
+        type="button"
+        class="secondary-button start-over-button">
+        Start a new recommendation
+    </button>
+</div>
 
         </section>
 

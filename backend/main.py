@@ -13,12 +13,20 @@ from backend.services.architecture_engine import generate_architectures
 from backend.services.cost_engine import calculate_all_costs
 from backend.services.evaluation_engine import evaluate_architectures
 
+from backend.services.tradeoff_service import (
+    generate_tradeoff_analysis
+)
+
 from backend.services.recommendation_service import (
     generate_recommendation_explanation
 )
 
 from backend.services.assumption_service import (
     generate_assumptions
+)
+
+from backend.services.conflict_service import (
+    detect_constraint_conflicts
 )
 
 
@@ -173,6 +181,111 @@ def evaluate_options(
 
     return evaluation
 
+# =========================================================
+# TRADE-OFF / WHAT-IF ANALYSIS
+# =========================================================
+
+@app.post("/api/tradeoffs")
+def analyze_tradeoffs(
+    requirements: ApplicationRequirements
+):
+
+    # -----------------------------------------------------
+    # 1. Generate architecture options
+    # -----------------------------------------------------
+
+    architectures = generate_architectures(
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 2. Calculate costs
+    # -----------------------------------------------------
+
+    costs = calculate_all_costs(
+        architectures,
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 3. Evaluate architectures
+    # -----------------------------------------------------
+
+    evaluation_result = evaluate_architectures(
+        architectures,
+        costs,
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 4. Generate deterministic trade-offs
+    # -----------------------------------------------------
+
+    tradeoffs = generate_tradeoff_analysis(
+
+        evaluation_result.evaluations,
+
+        evaluation_result
+        .recommended_architecture_id
+    )
+
+
+    return tradeoffs
+
+
+# =========================================================
+# CONSTRAINT CONFLICT DETECTION
+# =========================================================
+
+@app.post("/api/conflicts")
+def analyze_conflicts(
+    requirements: ApplicationRequirements
+):
+
+    # -----------------------------------------------------
+    # 1. Generate architecture options
+    # -----------------------------------------------------
+
+    architectures = generate_architectures(
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 2. Calculate costs
+    # -----------------------------------------------------
+
+    costs = calculate_all_costs(
+        architectures,
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 3. Evaluate architectures
+    # -----------------------------------------------------
+
+    evaluation_result = evaluate_architectures(
+        architectures,
+        costs,
+        requirements
+    )
+
+
+    # -----------------------------------------------------
+    # 4. Detect constraint conflicts
+    # -----------------------------------------------------
+
+    conflicts = detect_constraint_conflicts(
+        requirements,
+        evaluation_result.evaluations
+    )
+
+
+    return conflicts
 
 # =========================================================
 # FINAL RECOMMENDATION

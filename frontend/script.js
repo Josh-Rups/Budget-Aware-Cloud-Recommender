@@ -30,13 +30,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const requestText = document.getElementById("requestText");
     const progressFill = document.getElementById("progressFill");
     const progressSteps = document.querySelectorAll(".workflow-step");
+    // =====================================================
+// USER PRIORITY ELEMENTS
+// =====================================================
+
+const priorityPanel =
+    document.getElementById("priorityPanel");
+
+const priorityOptions =
+    document.querySelectorAll(".priority-option");
+
+const priorityCount =
+    document.getElementById("priorityCount");
+
+const priorityHelp =
+    document.getElementById("priorityHelp");
 
     // =====================================================
     // API CONFIGURATION
     // =====================================================
 
     const API_BASE_URL =
-        "https://budget-aware-cloud-recommender.onrender.com";
+       "http://127.0.0.1:8080";
 
     // =====================================================
     // STATE
@@ -52,20 +67,35 @@ document.addEventListener("DOMContentLoaded", () => {
     let recommendedArchitectureId = null;
     let aiRecommendationExplanation = null;
     let recommendationAssumptions = [];
+    let tradeoffAnalysis = null;
+    let conflictAnalysis = null;
 
-    let requirements = {
-        applicationType: null,
-        users: null,
-        trafficPattern: null,
-        database: null,
-        storage: null,
-        availability: null,
-        workloadType: null,
-        managementPreference: null,
-        infrastructureControl: null,
-        region: "us-east-1",
-        budget: 300
-    };
+   let requirements = {
+
+    applicationType: null,
+
+    users: null,
+
+    trafficPattern: null,
+
+    database: null,
+
+    storage: null,
+
+    availability: null,
+
+    workloadType: null,
+
+    managementPreference: null,
+
+    infrastructureControl: null,
+
+    userPriorities: [],
+
+    region: "us-east-1",
+
+    budget: null
+};
 
 
     // =====================================================
@@ -133,6 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 step.classList.add("active");
             }
         });
+
+       
     }
 
 
@@ -173,6 +205,80 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+    // =====================================================
+// TYPING PLACEHOLDER EFFECT
+// =====================================================
+
+function startPlaceholderTyping() {
+
+    const textarea =
+        document.getElementById("appDescription");
+
+    if (!textarea) {
+        return;
+    }
+
+
+    const exampleText =
+        "Example: I want to build a student portal for about 2,000 users. It needs PostgreSQL, file storage, and standard availability.";
+
+
+    let characterIndex = 0;
+
+    textarea.placeholder = "";
+
+
+    const typingInterval =
+        setInterval(() => {
+
+            // Stop if the user starts typing
+            if (textarea.value.trim() !== "") {
+
+                clearInterval(typingInterval);
+
+                textarea.placeholder =
+                    exampleText;
+
+                return;
+            }
+
+
+            const typedText =
+                exampleText.substring(
+                    0,
+                    characterIndex
+                );
+
+
+            // Blinking cursor
+            const cursor =
+                characterIndex % 2 === 0
+                    ? "|"
+                    : "";
+
+
+            textarea.placeholder =
+                typedText + cursor;
+
+
+            characterIndex++;
+
+
+            if (
+                characterIndex >
+                exampleText.length
+            ) {
+
+                clearInterval(
+                    typingInterval
+                );
+
+                textarea.placeholder =
+                    exampleText;
+            }
+
+        }, 35);
+}
 
     // =====================================================
     // ANALYZE
@@ -210,9 +316,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            aiRecommendationExplanation = null;
+           aiRecommendationExplanation = null;
 
-            sendAnalysisRequest(description);
+                requirements.userPriorities = [];
+
+                resetPrioritySelection();
+
+                sendAnalysisRequest(description);
         });
     }
 
@@ -395,6 +505,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 ).toLocaleString() +
                 " / month";
         }
+    const budgetRequirementStatus =
+    document.getElementById(
+        "budgetRequirementStatus"
+    );
+
+if (budgetRequirementStatus) {
+
+    budgetRequirementStatus.textContent =
+        "✓ Entered";
+
+    budgetRequirementStatus.classList.remove(
+        "needs-input"
+    );
+
+    budgetRequirementStatus.classList.add(
+        "detected"
+    );
+}
+        
+
 
 
         buildQuestions();
@@ -757,28 +887,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         currentQuestion = 0;
-        selectedAnswer = null;
+selectedAnswer = null;
 
+if (questions.length === 0) {
 
-        if (questions.length === 0) {
+    finishQuestions();
 
-            finishQuestions();
+} else {
 
-        } else {
+    // Show follow-up questions
+    if (followupPanel) {
+        followupPanel.classList.remove("hidden");
+    }
 
-            followupPanel.classList.remove(
-                "hidden"
-            );
+    // Hide priorities until ALL questions are finished
+    if (priorityPanel) {
+        priorityPanel.classList.add("hidden");
+    }
 
-            readyPanel.classList.add(
-                "hidden"
-            );
+    // Hide confirmation section
+    if (readyPanel) {
+        readyPanel.classList.add("hidden");
+    }
 
-            confirmButton.disabled =
-                true;
+    // User cannot continue yet
+    if (confirmButton) {
+        confirmButton.disabled = true;
+    }
 
-            displayQuestion();
-        }
+    displayQuestion();
+}
     }
 
 
@@ -1146,6 +1284,185 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshRequirementCards();
     }
 
+    // =====================================================
+// USER PRIORITIES
+// =====================================================
+
+function resetPrioritySelection() {
+
+    requirements.userPriorities = [];
+
+    priorityOptions.forEach(
+        button => {
+
+            button.classList.remove(
+                "selected"
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                "false"
+            );
+        }
+    );
+
+    updatePriorityUI();
+}
+
+
+function updatePriorityUI() {
+
+    const selected =
+        requirements.userPriorities || [];
+
+    const balancedSelected =
+        selected.includes("balanced");
+
+
+    if (priorityCount) {
+
+        priorityCount.textContent =
+            balancedSelected
+                ? "Balanced selected"
+                : `${selected.length} of 2 selected`;
+    }
+
+
+    if (priorityHelp) {
+
+        if (selected.length === 0) {
+
+            priorityHelp.textContent =
+                "Select at least one option to continue.";
+
+        } else if (balancedSelected) {
+
+            priorityHelp.textContent =
+                "Standard evaluation weights will be used.";
+
+        } else {
+
+            priorityHelp.textContent =
+                "Your priorities will influence the architecture evaluation.";
+        }
+    }
+
+
+    if (confirmButton) {
+
+        confirmButton.disabled =
+            selected.length === 0;
+    }
+}
+
+
+priorityOptions.forEach(
+    button => {
+
+        button.setAttribute(
+            "aria-pressed",
+            "false"
+        );
+
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const priority =
+                    button.dataset.priority;
+
+
+                let selected = [
+                    ...(requirements.userPriorities || [])
+                ];
+
+
+                // Balanced cannot be combined
+                // with another priority.
+
+                if (priority === "balanced") {
+
+                    selected =
+                        selected.includes("balanced")
+                            ? []
+                            : ["balanced"];
+
+                } else {
+
+                    selected =
+                        selected.filter(
+                            item =>
+                                item !== "balanced"
+                        );
+
+
+                    if (
+                        selected.includes(
+                            priority
+                        )
+                    ) {
+
+                        selected =
+                            selected.filter(
+                                item =>
+                                    item !== priority
+                            );
+
+                    } else {
+
+                        if (
+                            selected.length >= 2
+                        ) {
+
+                            alert(
+                                "Choose up to two priorities."
+                            );
+
+                            return;
+                        }
+
+
+                        selected.push(
+                            priority
+                        );
+                    }
+                }
+
+
+                requirements.userPriorities =
+                    selected;
+
+
+                priorityOptions.forEach(
+                    option => {
+
+                        const isSelected =
+                            selected.includes(
+                                option.dataset.priority
+                            );
+
+
+                        option.classList.toggle(
+                            "selected",
+                            isSelected
+                        );
+
+
+                        option.setAttribute(
+                            "aria-pressed",
+                            String(isSelected)
+                        );
+                    }
+                );
+
+
+                updatePriorityUI();
+            }
+        );
+    }
+);
+
 
     // =====================================================
     // REQUIREMENTS READY
@@ -1153,19 +1470,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function finishQuestions() {
 
-        followupPanel.classList.add(
-            "hidden"
-        );
+            followupPanel.classList.add(
+                "hidden"
+            );
 
-        readyPanel.classList.remove(
-            "hidden"
-        );
 
-        confirmButton.disabled =
-            false;
+            readyPanel.classList.remove(
+                "hidden"
+            );
 
-        refreshRequirementCards();
-    }
+
+            if (priorityPanel) {
+
+                priorityPanel.classList.remove(
+                    "hidden"
+                );
+            }
+
+
+            updatePriorityUI();
+
+
+            refreshRequirementCards();
+        }
 
 
     // =====================================================
@@ -1208,6 +1535,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             infrastructure_control:
                 requirements.infrastructureControl,
+
+            user_priorities:
+                requirements.userPriorities || [],
 
             region:
                 requirements.region,
@@ -1504,11 +1834,122 @@ document.addEventListener("DOMContentLoaded", () => {
                 aiRecommendationExplanation =
                     null;
             }
+    
+            // =================================================
+// 5. TRADE-OFF ANALYSIS
+// =================================================
+
+confirmButton.textContent =
+    "Analyzing trade-offs...";
+
+try {
+
+    const tradeoffResponse =
+        await fetch(
+            `${API_BASE_URL}/api/tradeoffs`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(payload)
+            }
+        );
 
 
-            // =================================================
-            // 5. DISPLAY
-            // =================================================
+    if (!tradeoffResponse.ok) {
+
+        throw new Error(
+            "Trade-off API returned " +
+            tradeoffResponse.status
+        );
+    }
+
+
+    tradeoffAnalysis =
+        await tradeoffResponse.json();
+
+
+    console.log(
+        "Trade-off analysis:",
+        tradeoffAnalysis
+    );
+
+
+} catch (tradeoffError) {
+
+    console.error(
+        "Trade-off analysis failed:",
+        tradeoffError
+    );
+
+    tradeoffAnalysis = null;
+}
+
+
+// =================================================
+// 6. CONSTRAINT CONFLICT DETECTION
+// =================================================
+
+confirmButton.textContent =
+    "Checking constraints...";
+
+try {
+
+    const conflictResponse =
+        await fetch(
+            `${API_BASE_URL}/api/conflicts`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(payload)
+            }
+        );
+
+
+    if (!conflictResponse.ok) {
+
+        throw new Error(
+            "Conflict API returned " +
+            conflictResponse.status
+        );
+    }
+
+
+    conflictAnalysis =
+        await conflictResponse.json();
+
+
+    console.log(
+        "Constraint conflicts:",
+        conflictAnalysis
+    );
+
+
+} catch (conflictError) {
+
+    console.error(
+        "Conflict analysis failed:",
+        conflictError
+    );
+
+    conflictAnalysis = null;
+}
+
+
+// =================================================
+// 7. DISPLAY
+// =================================================
 
             populateArchitectureResults();
 
@@ -1989,7 +2430,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const managementCriterion =
             getCriterion(
                 evaluation,
-                "Management effort"
+                "Management fit"
             );
 
 
@@ -2247,6 +2688,468 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+   // =====================================================
+// CONSTRAINT CONFLICT DISPLAY
+// =====================================================
+
+function populateConflicts() {
+
+    const card =
+        document.getElementById(
+            "conflictsCard"
+        );
+
+    const container =
+        document.getElementById(
+            "conflictsList"
+        );
+
+    const conflictsTitle =
+        document.getElementById(
+            "conflictsTitle"
+        );
+
+
+    if (
+        !card ||
+        !container
+    ) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    // Hide the section when there are no conflicts
+    if (
+        !conflictAnalysis ||
+        !conflictAnalysis.has_conflicts ||
+        !Array.isArray(
+            conflictAnalysis.conflicts
+        ) ||
+        conflictAnalysis.conflicts.length === 0
+    ) {
+
+        card.classList.add(
+            "hidden"
+        );
+
+        return;
+    }
+
+
+    // =================================================
+    // DYNAMIC CONFLICT TITLE
+    // =================================================
+
+    const conflictCount =
+        conflictAnalysis.conflicts.length;
+
+
+    if (conflictsTitle) {
+
+        conflictsTitle.textContent =
+            conflictCount === 1
+                ? "Important trade-off in your requirements"
+                : "Important trade-offs in your requirements";
+    }
+
+
+    // =================================================
+    // DISPLAY CONFLICTS
+    // =================================================
+
+    conflictAnalysis.conflicts.forEach(
+        conflict => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "conflict-item";
+
+
+            const content =
+                document.createElement(
+                    "div"
+                );
+
+            content.className =
+                "conflict-content";
+
+
+            const message =
+                document.createElement(
+                    "p"
+                );
+
+
+            message.textContent =
+                conflict.message ||
+                "A constraint conflict was detected.";
+
+
+            content.appendChild(
+                message
+            );
+
+
+            item.appendChild(
+                content
+            );
+
+
+            container.appendChild(
+                item
+            );
+        }
+    );
+
+
+    card.classList.remove(
+        "hidden"
+    );
+}
+
+
+// =====================================================
+// TRADE-OFF CRITERION LABELS
+// =====================================================
+
+function formatTradeoffCriterion(
+    criterion,
+    direction
+) {
+
+    const labels = {
+
+        "Budget fit": {
+            gain: "Better budget fit",
+            loss: "Worse budget fit"
+        },
+
+        "Workload fit": {
+            gain: "Better workload fit",
+            loss: "Lower workload fit"
+        },
+
+        "Scalability": {
+            gain: "Better scalability",
+            loss: "Lower scalability"
+        },
+
+        "Management fit": {
+            gain: "Better management fit",
+            loss: "More management overhead"
+        },
+
+        "Requirement fit": {
+            gain: "Better requirement fit",
+            loss: "Lower requirement fit"
+        }
+    };
+
+
+    if (
+        labels[criterion] &&
+        labels[criterion][direction]
+    ) {
+
+        return labels[criterion][direction];
+    }
+
+
+    return direction === "gain"
+        ? "Better " + criterion.toLowerCase()
+        : "Lower " + criterion.toLowerCase();
+}
+    // =====================================================
+// TRADE-OFF DISPLAY
+// =====================================================
+
+function populateTradeoffs() {
+
+    const card =
+        document.getElementById(
+            "tradeoffCard"
+        );
+
+    const container =
+        document.getElementById(
+            "tradeoffAlternatives"
+        );
+
+
+    if (!card || !container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    if (
+        !tradeoffAnalysis ||
+        !tradeoffAnalysis.alternatives ||
+        tradeoffAnalysis.alternatives.length === 0
+    ) {
+
+        card.classList.add("hidden");
+
+        return;
+    }
+
+
+    tradeoffAnalysis.alternatives.forEach(
+        alternative => {
+
+            const alternativeCard =
+                document.createElement("div");
+
+            alternativeCard.className =
+                "tradeoff-alternative";
+
+
+            // -----------------------------------------
+            // HEADER
+            // -----------------------------------------
+
+            const header =
+                document.createElement("div");
+
+            header.className =
+                "tradeoff-alternative-heading";
+
+
+            const title =
+                document.createElement("strong");
+
+            title.textContent =
+                alternative.architecture_name;
+
+
+            const cost =
+                document.createElement("span");
+
+            cost.textContent =
+                "$" +
+                Number(
+                    alternative.estimated_monthly_cost
+                ).toFixed(2) +
+                " / month";
+
+
+            header.appendChild(title);
+            header.appendChild(cost);
+
+            alternativeCard.appendChild(header);
+
+
+            // -----------------------------------------
+            // COST DIFFERENCE
+            // -----------------------------------------
+
+            const costComparison =
+                alternative.cost_comparison;
+
+
+            if (costComparison) {
+
+                const costDifference =
+                    document.createElement("p");
+
+                costDifference.className =
+                    "tradeoff-cost-difference";
+
+
+                if (
+                    costComparison.cost_status ===
+                    "cheaper"
+                ) {
+
+                    costDifference.textContent =
+                        "Save $" +
+                        Number(
+                            costComparison.savings
+                        ).toFixed(2) +
+                        " / month";
+
+                } else if (
+                    costComparison.cost_status ===
+                    "more_expensive"
+                ) {
+
+                    costDifference.textContent =
+                        "Costs $" +
+                        Math.abs(
+                            Number(
+                                costComparison.savings
+                            )
+                        ).toFixed(2) +
+                        " more / month";
+
+                } else {
+
+                    costDifference.textContent =
+                        "Same estimated monthly cost";
+                }
+
+
+                alternativeCard.appendChild(
+                    costDifference
+                );
+            }
+
+
+            // -----------------------------------------
+// GAINS
+// -----------------------------------------
+
+                if (
+                    alternative.gains &&
+                    alternative.gains.length > 0
+                ) {
+
+                    const gainsSection =
+                        document.createElement("div");
+
+                    gainsSection.className =
+                        "tradeoff-section";
+
+
+                    const gainsTitle =
+                        document.createElement("span");
+
+                    gainsTitle.className =
+                        "tradeoff-section-title gain";
+
+                    gainsTitle.textContent =
+                        "You gain";
+
+
+                    gainsSection.appendChild(
+                        gainsTitle
+                    );
+
+
+                    const gainsList =
+                        document.createElement("ul");
+
+
+                    alternative.gains.forEach(
+                        gain => {
+
+                            const item =
+                                document.createElement("li");
+
+                            item.textContent =
+                                formatTradeoffCriterion(
+                                    gain.criterion,
+                                    "gain"
+                                );
+
+                            gainsList.appendChild(item);
+                        }
+                    );
+
+
+                    gainsSection.appendChild(
+                        gainsList
+                    );
+
+                    alternativeCard.appendChild(
+                        gainsSection
+                    );
+                }
+
+            // -----------------------------------------
+            // LOSSES
+            // -----------------------------------------
+
+            const lossesSection =
+                document.createElement("div");
+
+            lossesSection.className =
+                "tradeoff-section";
+
+
+            const lossesTitle =
+                document.createElement("span");
+
+            lossesTitle.className =
+                "tradeoff-section-title loss";
+
+            lossesTitle.textContent =
+                "You give up";
+
+
+            lossesSection.appendChild(
+                lossesTitle
+            );
+
+
+            const lossesList =
+                document.createElement("ul");
+
+
+            if (
+                alternative.losses &&
+                alternative.losses.length > 0
+            ) {
+
+               alternative.losses.forEach(
+    loss => {
+
+        const item =
+            document.createElement("li");
+
+        item.textContent =
+            formatTradeoffCriterion(
+                loss.criterion,
+                "loss"
+            );
+
+
+        lossesList.appendChild(
+            item
+        );
+    }
+);
+
+            } else {
+
+                const item =
+                    document.createElement("li");
+
+                item.textContent =
+                    "No evaluated criterion decreases.";
+
+                lossesList.appendChild(item);
+            }
+
+
+            lossesSection.appendChild(
+                lossesList
+            );
+
+            alternativeCard.appendChild(
+                lossesSection
+            );
+
+
+            container.appendChild(
+                alternativeCard
+            );
+        }
+    );
+
+
+    card.classList.remove("hidden");
+}
+
 
     // =====================================================
     // RECOMMENDATION PAGE
@@ -2314,7 +3217,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setText(
                 "recommendationSummary",
 
-                "This option provides the strongest fit for your requirements while staying within your monthly AWS budget."
+                "Recommendation based on your technical requirements, budget, priorities, estimated AWS costs, and architecture evaluation."
             );
 
         } else {
@@ -2322,9 +3225,14 @@ document.addEventListener("DOMContentLoaded", () => {
             setText(
                 "recommendationSummary",
 
-                "No architecture fully fits the current budget. This option provides the closest overall fit based on cost and your requirements."
+                "No architecture fully fits the current budget. This option provides the strongest overall fit based on the evaluated requirements, your priorities, and budget constraints."
             );
+           
+                        
+
         }
+
+        
 
 
         // =================================================
@@ -2382,6 +3290,96 @@ document.addEventListener("DOMContentLoaded", () => {
                         serviceBox
                     );
                 });
+        }
+                // =================================================
+        // USER PRIORITIES
+        // =================================================
+
+        const prioritiesContainer =
+            document.getElementById(
+                "recommendationPriorities"
+            );
+
+
+        const priorityList =
+            document.getElementById(
+                "recommendationPriorityList"
+            );
+
+
+        const priorityLabels = {
+
+            cost:
+                "Lowest cost",
+
+            low_management:
+                "Less management",
+
+            infrastructure_control:
+                "Maximum control",
+
+            scalability:
+                "High scalability",
+
+            availability:
+                "High availability",
+
+            balanced:
+                "Balanced / recommend for me"
+        };
+
+
+        if (
+            prioritiesContainer &&
+            priorityList
+        ) {
+
+            priorityList.innerHTML = "";
+
+
+            const selectedPriorities =
+                requirements.userPriorities || [];
+
+
+            if (
+                selectedPriorities.length > 0
+            ) {
+
+                selectedPriorities.forEach(
+                    priority => {
+
+                        const badge =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        badge.className =
+                            "recommendation-priority-badge";
+
+
+                        badge.textContent =
+                            priorityLabels[priority] ||
+                            priority;
+
+
+                        priorityList.appendChild(
+                            badge
+                        );
+                    }
+                );
+
+
+                prioritiesContainer.classList.remove(
+                    "hidden"
+                );
+
+            } else {
+
+                prioritiesContainer.classList.add(
+                    "hidden"
+                );
+            }
         }
 
 
@@ -2446,6 +3444,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+ // =================================================
+// REQUIREMENT SUMMARY
+// =================================================
+
+                        setText(
+                            "recommendationBudget",
+                            requirements.budget !== null &&
+                            requirements.budget !== undefined
+                                ? "$" + Number(requirements.budget).toLocaleString()
+                                : "Unknown"
+                        );
+
+                        setText(
+                            "recommendationUsers",
+                            requirements.users !== null &&
+                            requirements.users !== undefined
+                                ? Number(requirements.users).toLocaleString()
+                                : "Unknown"
+                        );
+
+                        setText(
+                            "recommendationDatabase",
+                            requirements.database || "Unknown"
+                        );
+
+                        setText(
+                            "recommendationAvailability",
+                            requirements.availability || "Unknown"
+                        );
+
+
+    // =================================================
+// CONSTRAINT CONFLICTS
+// =================================================
+
+populateConflicts();
+
+
+// =================================================
+// TRADE-OFFS
+// =================================================
+
+populateTradeoffs();
+
     // =================================================
 // ASSUMPTIONS
 // =================================================
@@ -2507,78 +3549,104 @@ if (
 }
 
 
-        // =================================================
-        // COST
-        // =================================================
+     // =================================================
+// COST + BUDGET STATUS
+// =================================================
 
-        if (recommendedCost) {
+if (recommendedCost) {
 
+            const monthlyCost =
+                Number(
+                    recommendedCost.total_monthly_cost
+                );
+
+            const monthlyBudget =
+                Number(
+                    requirements.budget
+                );
+
+            const withinBudget =
+                recommendedCost.within_budget === true ||
+                monthlyCost <= monthlyBudget;
+
+
+            // Display estimated monthly cost
             setText(
                 "recommendedArchitectureCost",
-
                 "$" +
-                Number(
-                    recommendedCost
-                        .total_monthly_cost
-                ).toFixed(2) +
+                monthlyCost.toFixed(2) +
                 " / month"
             );
+
+
+            // Recommendation badge
+            const fitBadge =
+                document.getElementById(
+                    "recommendationFitBadge"
+                );
+
+
+            // Cost status below estimated cost
+            const costStatus =
+                document.getElementById(
+                    "recommendationCostStatus"
+                );
+
+
+            if (withinBudget) {
+
+                if (fitBadge) {
+
+                    fitBadge.textContent =
+                        "Recommended fit";
+
+                    fitBadge.classList.remove(
+                        "over-budget"
+                    );
+                }
+
+
+                if (costStatus) {
+
+                    costStatus.textContent =
+                        "Within budget";
+
+                    costStatus.classList.remove(
+                        "over-budget"
+                    );
+                }
+
+            } else {
+
+                const amountOverBudget =
+                    monthlyCost - monthlyBudget;
+
+
+                if (fitBadge) {
+
+                    fitBadge.textContent =
+                        "Recommended fit · Over budget";
+
+                    fitBadge.classList.add(
+                        "over-budget"
+                    );
+                }
+
+
+                if (costStatus) {
+
+                    costStatus.textContent =
+                        "$" +
+                        amountOverBudget.toFixed(2) +
+                        " over budget";
+
+                    costStatus.classList.add(
+                        "over-budget"
+                    );
+                }
+            }
         }
-
-
-        // =================================================
-        // REQUIREMENTS
-        // =================================================
-
-        setText(
-            "recommendationBudget",
-
-            "$" +
-            Number(
-                requirements.budget
-            ).toLocaleString()
-        );
-
-
-        setText(
-            "recommendationUsers",
-
-            requirements.users
-                ? Number(
-                    requirements.users
-                ).toLocaleString()
-                : "Unknown"
-        );
-
-
-        setText(
-            "recommendationDatabase",
-
-            requirements.database ||
-            "Unknown"
-        );
-
-
-        setText(
-            "recommendationAvailability",
-
-            requirements.availability ||
-            "Unknown"
-        );
-
-
-        console.log(
-            "Recommendation page populated:",
-            recommendedArchitectureId
-        );
-
-
-        console.log(
-            "Displayed AI explanation:",
-            aiRecommendationExplanation
-        );
     }
-
 
     // =====================================================
     // SERVICE SHORT NAME
@@ -2792,6 +3860,110 @@ if (
         );
     }
 
+    // =====================================================
+// START OVER
+// =====================================================
+
+const startOverButton =
+    document.getElementById(
+        "startOverButton"
+    );
+
+
+if (startOverButton) {
+
+    startOverButton.addEventListener(
+        "click",
+        () => {
+
+            // Clear input fields
+            if (appDescription) {
+                appDescription.value = "";
+            }
+
+            if (budgetInput) {
+                budgetInput.value = "";
+            }
+
+            if (characterCount) {
+                characterCount.textContent = "0";
+            }
+
+
+            // Reset application requirements
+            requirements = {
+
+                applicationType: null,
+
+                users: null,
+
+                trafficPattern: null,
+
+                database: null,
+
+                storage: null,
+
+                availability: null,
+
+                workloadType: null,
+
+                managementPreference: null,
+
+                infrastructureControl: null,
+
+                userPriorities: [],
+
+                region: "us-east-1",
+
+                budget: null
+            };
+
+
+            // Reset recommendation data
+            generatedArchitectures = [];
+            architectureCosts = [];
+            architectureEvaluations = [];
+
+            recommendedArchitectureId = null;
+
+            aiRecommendationExplanation = null;
+
+            recommendationAssumptions = [];
+
+            tradeoffAnalysis = null;
+
+            conflictAnalysis = null;
+
+
+            // Reset questions
+            currentQuestion = 0;
+            selectedAnswer = null;
+            questions = [];
+
+
+            // Reset priorities
+            resetPrioritySelection();
+
+
+            // Return to first screen
+            showScreen(
+                "describe",
+                1
+            );
+
+
+            // Restart example animation
+            startPlaceholderTyping();
+
+
+            // Put cursor in description box
+            if (appDescription) {
+                appDescription.focus();
+            }
+        }
+    );
+}
+
 
     // =====================================================
     // HELPER
@@ -2817,4 +3989,7 @@ if (
 
     showScreen("describe", 1);
 
+    startPlaceholderTyping();
+
 });
+
