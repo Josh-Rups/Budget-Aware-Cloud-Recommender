@@ -2748,11 +2748,11 @@ function populateConflicts() {
 
     if (conflictsTitle) {
 
-        conflictsTitle.textContent =
-            conflictCount === 1
-                ? "Important trade-off in your requirements"
-                : "Important trade-offs in your requirements";
-    }
+    conflictsTitle.textContent =
+        conflictCount === 1
+            ? "One of your choices may conflict"
+            : "Some of your choices may conflict";
+}
 
 
     // =================================================
@@ -2826,28 +2826,28 @@ function formatTradeoffCriterion(
     const labels = {
 
         "Budget fit": {
-            gain: "Better budget fit",
-            loss: "Worse budget fit"
+            gain: "Fits your budget better",
+            loss: "Less suitable for your budget"
         },
 
         "Workload fit": {
-            gain: "Better workload fit",
-            loss: "Lower workload fit"
+            gain: "Better suited to your workload",
+            loss: "Less suited to your workload"
         },
 
         "Scalability": {
-            gain: "Better scalability",
-            loss: "Lower scalability"
+            gain: "Better able to scale with demand",
+            loss: "Less able to handle growth or traffic changes"
         },
 
         "Management fit": {
-            gain: "Better management fit",
-            loss: "More management overhead"
+            gain: "Easier to manage",
+            loss: "Requires more infrastructure management"
         },
 
         "Requirement fit": {
-            gain: "Better requirement fit",
-            loss: "Lower requirement fit"
+            gain: "Better matches your application requirements",
+            loss: "Matches fewer of your application requirements"
         }
     };
 
@@ -2862,8 +2862,8 @@ function formatTradeoffCriterion(
 
 
     return direction === "gain"
-        ? "Better " + criterion.toLowerCase()
-        : "Lower " + criterion.toLowerCase();
+        ? "Better fit"
+        : "Less suitable";
 }
     // =====================================================
 // TRADE-OFF DISPLAY
@@ -3026,7 +3026,7 @@ function populateTradeoffs() {
                         "tradeoff-section-title gain";
 
                     gainsTitle.textContent =
-                        "You gain";
+                        "Benefits";
 
 
                     gainsSection.appendChild(
@@ -3082,7 +3082,7 @@ function populateTradeoffs() {
                 "tradeoff-section-title loss";
 
             lossesTitle.textContent =
-                "You give up";
+                "Trade-offs";
 
 
             lossesSection.appendChild(
