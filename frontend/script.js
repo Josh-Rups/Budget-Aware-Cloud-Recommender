@@ -325,6 +325,33 @@ function startPlaceholderTyping() {
         });
     }
 
+    
+function updateAnalyzeButton() {
+    const hasDescription =
+        appDescription.value.trim().length > 0;
+
+    const hasBudget =
+        budgetInput.value.trim() !== "" &&
+        Number.isFinite(Number(budgetInput.value)) &&
+        Number(budgetInput.value) > 0;
+
+    analyzeButton.disabled =
+        !(hasDescription && hasBudget);
+}
+
+appDescription.addEventListener(
+    "input",
+    updateAnalyzeButton
+);
+
+budgetInput.addEventListener(
+    "input",
+    updateAnalyzeButton
+);
+
+updateAnalyzeButton();
+
+
 
     // =====================================================
     // BEDROCK REQUIREMENT ANALYSIS
@@ -1164,7 +1191,7 @@ if (questions.length === 0) {
             ) {
 
                 requirements.database =
-                    "Unknown";
+                    "Not Selected";
 
             } else {
 
@@ -2687,131 +2714,80 @@ try {
         );
     }
 
-   // =====================================================
+
+// =====================================================
 // CONSTRAINT CONFLICT DISPLAY
 // =====================================================
 
 function populateConflicts() {
 
     const card =
-        document.getElementById(
-            "conflictsCard"
-        );
+        document.getElementById("conflictsCard");
 
     const container =
-        document.getElementById(
-            "conflictsList"
-        );
+        document.getElementById("conflictsList");
 
-    const conflictsTitle =
-        document.getElementById(
-            "conflictsTitle"
-        );
+    const conflictsCount =
+        document.getElementById("conflictsCount");
 
-
-    if (
-        !card ||
-        !container
-    ) {
+    if (!card || !container) {
         return;
     }
 
+    // Clear previous results
+    container.replaceChildren();
 
-    container.innerHTML = "";
+    // Get conflicts from the API response
+    const conflicts =
+        conflictAnalysis?.has_conflicts &&
+        Array.isArray(conflictAnalysis.conflicts)
+            ? conflictAnalysis.conflicts
+            : [];
 
+    const total = conflicts.length;
 
-    // Hide the section when there are no conflicts
-    if (
-        !conflictAnalysis ||
-        !conflictAnalysis.has_conflicts ||
-        !Array.isArray(
-            conflictAnalysis.conflicts
-        ) ||
-        conflictAnalysis.conflicts.length === 0
-    ) {
+    // Update the conflict count
+    if (conflictsCount) {
+        conflictsCount.textContent =
+            `${total} ${total === 1 ? "conflict" : "conflicts"}`;
+    }
 
-        card.classList.add(
-            "hidden"
-        );
-
+    // Hide the entire card when no conflicts exist
+    if (total === 0) {
+        card.classList.add("hidden");
         return;
     }
 
+    // Display each detected conflict
+    conflicts.forEach(conflict => {
 
-    // =================================================
-    // DYNAMIC CONFLICT TITLE
-    // =================================================
+        const item =
+            document.createElement("div");
 
-    const conflictCount =
-        conflictAnalysis.conflicts.length;
+        item.className = "conflict-item";
 
+        const content =
+            document.createElement("div");
 
-    if (conflictsTitle) {
+        content.className = "conflict-content";
 
-    conflictsTitle.textContent =
-        conflictCount === 1
-            ? "One of your choices may conflict"
-            : "Some of your choices may conflict";
+        const message =
+            document.createElement("p");
+
+        message.textContent =
+            conflict.message ||
+            "A constraint conflict was detected.";
+
+        content.appendChild(message);
+        item.appendChild(content);
+        container.appendChild(item);
+
+    });
+
+    // Show the card
+    card.classList.remove("hidden");
 }
 
-
-    // =================================================
-    // DISPLAY CONFLICTS
-    // =================================================
-
-    conflictAnalysis.conflicts.forEach(
-        conflict => {
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-            item.className =
-                "conflict-item";
-
-
-            const content =
-                document.createElement(
-                    "div"
-                );
-
-            content.className =
-                "conflict-content";
-
-
-            const message =
-                document.createElement(
-                    "p"
-                );
-
-
-            message.textContent =
-                conflict.message ||
-                "A constraint conflict was detected.";
-
-
-            content.appendChild(
-                message
-            );
-
-
-            item.appendChild(
-                content
-            );
-
-
-            container.appendChild(
-                item
-            );
-        }
-    );
-
-
-    card.classList.remove(
-        "hidden"
-    );
-}
 
 
 // =====================================================
@@ -3487,63 +3463,69 @@ populateConflicts();
 
 populateTradeoffs();
 
-    // =================================================
-// ASSUMPTIONS
-// =================================================
+  
+ // =================================================
+ // ASSUMPTIONS
+ // =================================================
 
 const assumptionsCard =
-    document.getElementById(
-        "assumptionsCard"
-    );
-
+    document.getElementById("assumptionsCard");
 
 const assumptionsList =
-    document.getElementById(
-        "assumptionsList"
-    );
+    document.getElementById("assumptionsList");
 
+const assumptionsCount =
+    document.getElementById("assumptionsCount");
+
+const assumptionsDescription =
+    document.getElementById("assumptionsDescription");
 
 if (
     assumptionsCard &&
-    assumptionsList
+    assumptionsList &&
+    assumptionsCount &&
+    assumptionsDescription
 ) {
+    const assumptions = Array.isArray(recommendationAssumptions)
+        ? recommendationAssumptions.filter(
+            assumption =>
+                typeof assumption === "string" &&
+                assumption.trim().length > 0
+          )
+        : [];
 
-    assumptionsList.innerHTML =
-        "";
+    const total = assumptions.length;
 
+    // Always show the assumptions card
+    assumptionsCard.classList.remove("hidden");
 
-    if (
-        recommendationAssumptions.length > 0
-    ) {
+    // Update assumption count
+    assumptionsCount.textContent =
+        `${total} ${total === 1 ? "assumption" : "assumptions"}`;
 
-        recommendationAssumptions
-            .forEach(assumption => {
+    // Update description
+    assumptionsDescription.textContent =
+        total === 0
+            ? "No assumptions were needed for this analysis."
+            : "These assumptions were used where requirements were missing or uncertain.";
 
-                const item =
-                    document.createElement(
-                        "li"
-                    );
+    // Clear previous assumptions
+    assumptionsList.replaceChildren();
 
+    if (total > 0) {
 
-                item.textContent =
-                    assumption;
+        assumptions.forEach(assumption => {
+            const item = document.createElement("li");
+            item.textContent = assumption;
+            assumptionsList.appendChild(item);
+        });
 
-
-                assumptionsList.appendChild(
-                    item
-                );
-            });
-
-
-        assumptionsCard.classList.remove(
-            "hidden"
-        );
+        assumptionsList.classList.remove("hidden");
 
     } else {
 
-        assumptionsCard.classList.add(
-            "hidden"
-        );
+        // Hide only the list, not the card
+        assumptionsList.classList.add("hidden");
     }
 }
 
@@ -3859,110 +3841,7 @@ if (recommendedCost) {
         );
     }
 
-    // =====================================================
-// START OVER
-// =====================================================
-
-const startOverButton =
-    document.getElementById(
-        "startOverButton"
-    );
-
-
-if (startOverButton) {
-
-    startOverButton.addEventListener(
-        "click",
-        () => {
-
-            // Clear input fields
-            if (appDescription) {
-                appDescription.value = "";
-            }
-
-            if (budgetInput) {
-                budgetInput.value = "";
-            }
-
-            if (characterCount) {
-                characterCount.textContent = "0";
-            }
-
-
-            // Reset application requirements
-            requirements = {
-
-                applicationType: null,
-
-                users: null,
-
-                trafficPattern: null,
-
-                database: null,
-
-                storage: null,
-
-                availability: null,
-
-                workloadType: null,
-
-                managementPreference: null,
-
-                infrastructureControl: null,
-
-                userPriorities: [],
-
-                region: "us-east-1",
-
-                budget: null
-            };
-
-
-            // Reset recommendation data
-            generatedArchitectures = [];
-            architectureCosts = [];
-            architectureEvaluations = [];
-
-            recommendedArchitectureId = null;
-
-            aiRecommendationExplanation = null;
-
-            recommendationAssumptions = [];
-
-            tradeoffAnalysis = null;
-
-            conflictAnalysis = null;
-
-
-            // Reset questions
-            currentQuestion = 0;
-            selectedAnswer = null;
-            questions = [];
-
-
-            // Reset priorities
-            resetPrioritySelection();
-
-
-            // Return to first screen
-            showScreen(
-                "describe",
-                1
-            );
-
-
-            // Restart example animation
-            startPlaceholderTyping();
-
-
-            // Put cursor in description box
-            if (appDescription) {
-                appDescription.focus();
-            }
-        }
-    );
-}
-
+ 
 
     // =====================================================
     // HELPER

@@ -184,46 +184,46 @@
                     </div>
 
 
-                    <div class="planner-bottom">
+<div class="planner-bottom">
 
-                        <div class="budget-group">
+    <div class="budget-action-bar">
 
-                            <label for="budget">
-                                Monthly AWS budget
-                            </label>
+        <div class="budget-group">
+            <label for="budget">
+                Monthly AWS budget
+            </label>
 
-                            <div class="budget-input">
+            <div class="budget-input">
+                <span class="dollar">$</span>
 
-                                <span class="dollar">$</span>
+                <input
+                    type="number"
+                    id="budget"
+                    min="1"
+                    step="1"
+                    placeholder="Enter amount"
+                    required
+                >
 
-                                <input
-                                        type="number"
-                                        id="budget"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Amount"
-                                    >
+                <span class="month">/ month</span>
+            </div>
+        </div>
 
-                                <span class="month">
-                                    / month
-                                </span>
+        <button
+            id="analyzeButton"
+            class="primary-button analyze-button"
+            type="button"
+            aria-label="Analyze requirements"
+            title="Analyze requirements"
+            disabled
+        >
+            <span aria-hidden="true">↑</span>
+        </button>
 
-                            </div>
+    </div>
 
-                        </div>
+</div>
 
-
-                        <button
-                            id="analyzeButton"
-                            class="primary-button analyze-button"
-                            type="button">
-
-                            Analyze requirements
-                            <span>→</span>
-
-                        </button>
-
-                    </div>
 
                 </div>
 
@@ -1164,72 +1164,161 @@
                     </div>
 
 
-                    <div
-                        id="recommendedServices"
-                        class="final-services">
-                    </div>
+                    
+<!-- WHY THIS OPTION - SHOW FIRST -->
 
+<div class="why-card">
+    <h3>Why this option?</h3>
 
-                    <!-- USER PRIORITIES -->
+    <ul id="recommendationReasons"></ul>
+</div>
 
-                    <div
-                        id="recommendationPriorities"
-                        class="recommendation-priorities hidden">
+<!-- RECOMMENDATION SUMMARY -->
 
-                        <span class="small-label">
-                            YOUR PRIORITIES
-                        </span>
+<div class="recommendation-summary-card">
 
-                        <div
-                            id="recommendationPriorityList"
-                            class="recommendation-priority-list">
-                        </div>
-                    </div>
+    <h3>Cost &amp; Requirements Summary</h3>
 
+<div class="recommendation-stats">
 
-                    <!-- WHY THIS OPTION -->
-
-                    <div class="why-card">
-                        <h3>
-                            Why this option?
-                        </h3>
-
-                        <ul id="recommendationReasons">
-                        </ul>
-                    </div>
-
-
-<!-- =================================================
-     CONSTRAINTS & CONFLICTS
-================================================== -->
-
-<div
-    id="conflictsCard"
-    class="conflicts-card hidden">
-
-    <div class="conflicts-heading">
-        <div>
-            <span class="small-label">
-                POTENTIAL CONFLICTS
-            </span>
-
-            <h3  id="conflictsTitle">
-                Some of your choices may conflict
-            </h3>
-
-            <p>
-               Review these conflicts before choosing an architecture.
-               Meeting one priority may require compromising on another.
-            </p>
-        </div>
+    <div>
+        <i data-lucide="wallet"></i>
+        <span>Estimated cost</span>
+        <strong id="recommendedArchitectureCost">-</strong>
+        <small id="recommendationCostStatus"
+               class="recommendation-cost-status"></small>
     </div>
 
-    <div
-        id="conflictsList"
-        class="conflicts-list">
+    <div>
+        <i data-lucide="circle-dollar-sign"></i>
+        <span>Your budget</span>
+        <strong id="recommendationBudget">-</strong>
+    </div>
+
+    <div>
+        <i data-lucide="users"></i>
+        <span>Expected users</span>
+        <strong id="recommendationUsers">-</strong>
+    </div>
+
+    <div>
+        <i data-lucide="database"></i>
+        <span>Database</span>
+        <strong id="recommendationDatabase">-</strong>
+    </div>
+
+    <div>
+        <i data-lucide="shield-check"></i>
+        <span>Availability</span>
+        <strong id="recommendationAvailability">-</strong>
     </div>
 
 </div>
+
+</div>
+
+<!-- ARCHITECTURE DETAILS -->
+<div class="architecture-details">
+
+    <h3>Architecture details</h3>
+
+    <div class="architecture-details-grid">
+
+        <div class="architecture-detail-item">
+            <span class="small-label">
+                <i data-lucide="cloud"></i>
+                AWS SERVICES
+            </span>
+
+            <div id="recommendedServices"
+                 class="final-services"></div>
+        </div>
+
+        <div id="recommendationPriorities"
+             class="architecture-detail-item hidden">
+
+            <span class="small-label">
+                <i data-lucide="sliders-horizontal"></i>
+                YOUR PRIORITIES
+            </span>
+
+            <div id="recommendationPriorityList"
+                 class="recommendation-priority-list"></div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- POTENTIAL CONFLICTS -->
+
+<div id="conflictsCard" class="conflicts-card hidden">
+
+    <div class="conflicts-heading">
+
+        <span class="conflicts-icon">
+            <i data-lucide="alert-triangle"></i>
+        </span>
+
+        <div class="conflicts-heading-text">
+            <h3>Potential conflicts</h3>
+            <p>
+                Some of your requirements may conflict
+                with each other.
+            </p>
+        </div>
+
+        <span id="conflictsCount" class="conflicts-count">
+            0 conflicts
+        </span>
+
+    </div>
+
+    <div id="conflictsList" class="conflicts-list"></div>
+
+</div>
+
+
+            
+
+
+<!-- ASSUMPTIONS -->
+
+<div id="assumptionsCard" class="assumptions-card">
+
+    <div class="assumptions-heading">
+
+        <span class="assumptions-icon">
+            <i data-lucide="clipboard-list"></i>
+        </span>
+
+        <div class="assumptions-heading-text">
+            <h3>Assumptions used</h3>
+
+            <p id="assumptionsDescription">
+                No assumptions were needed for this analysis.
+            </p>
+        </div>
+
+        <span id="assumptionsCount" class="assumptions-count">
+            0 assumptions
+        </span>
+
+    </div>
+
+    <ul id="assumptionsList" class="hidden"></ul>
+
+</div>
+
 
 <!-- =================================================
      TRADE-OFF / WHAT-IF ANALYSIS
@@ -1263,74 +1352,17 @@
     </div>
 
 </div>
-            
 
 
-                    <!-- ASSUMPTIONS -->
-
-                    <div
-                        id="assumptionsCard"
-                        class="assumptions-card hidden">
-
-                        <div class="assumptions-heading">
-                            <span class="assumptions-icon">
-                                i
-                            </span>
-
-                            <div>
-                                <h3>
-                                    Assumptions used
-                                </h3>
-
-                                <p>
-                                    These assumptions were used where
-                                    requirements were missing or uncertain.
-                                </p>
-                            </div>
-                        </div>
-
-                        <ul id="assumptionsList">
-                        </ul>
-                    </div>
 
 
-                    <div class="recommendation-stats">
 
-                        <div>
-                            <span>Estimated cost</span>
 
-                            <strong id="recommendedArchitectureCost">
-                                -
-                            </strong>
 
-                            <small
-                                id="recommendationCostStatus"
-                                class="recommendation-cost-status">
-                            </small>
-                        </div>
 
-                        <div>
-                            <span>Your budget</span>
-                            <strong id="recommendationBudget">-</strong>
-                        </div>
 
-                        <div>
-                            <span>Expected users</span>
-                            <strong id="recommendationUsers">-</strong>
-                        </div>
 
-                        <div>
-                            <span>Database</span>
-                            <strong id="recommendationDatabase">-</strong>
-                        </div>
-
-                        <div>
-                            <span>Availability</span>
-                            <strong id="recommendationAvailability">-</strong>
-                        </div>
-
-                    </div>
-
+                    
                     <p class="cost-disclaimer">
                         Estimated using predefined AWS pricing assumptions.
                         Actual AWS charges may vary.
@@ -1352,14 +1384,14 @@
 
             </div>
 
-        <div class="start-over-container">
+      <!--  <div class="start-over-container">
     <button
         id="startOverButton"
         type="button"
         class="secondary-button start-over-button">
         Start a new recommendation
-    </button>
-</div>
+    </button> 
+</div> -->
 
         </section>
 
@@ -1367,6 +1399,12 @@
 
 
     <script src="script.js"></script>
+    
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+
 
 </body>
 
