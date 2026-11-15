@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // =====================================================
@@ -9,7 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
         loading: document.getElementById("loadingScreen"),
         analysis: document.getElementById("analysisScreen"),
         results: document.getElementById("resultsScreen"),
-        recommendation: document.getElementById("recommendationScreen")
+        recommendation: document.getElementById("recommendationScreen"),
+        // New screens
+        review: document.getElementById("reviewScreen"),
+        decision: document.getElementById("decisionScreen")
     };
 
     const appDescription = document.getElementById("appDescription");
@@ -116,6 +120,13 @@ const priorityHelp =
 
         updateProgress(stepNumber);
 
+        if (screenName === "review") {
+            populateReviewRequirements();
+            populateReviewUpdatedRecommendation(null, reviewHasSuccessfulEdit);
+            populateConflicts();
+            populateTradeoffs();
+        }
+
         window.scrollTo({
             top: 0,
             behavior: "smooth"
@@ -129,42 +140,54 @@ const priorityHelp =
 
     function updateProgress(stepNumber) {
 
-        const percentages = [0, 25, 50, 75, 100];
+    // Progress percentages for 7 steps
+    const percentages = [
+        0,
+        16.67,
+        33.33,
+        50,
+        66.67,
+        83.33,
+        100
+    ];
 
-        if (progressFill) {
-            progressFill.style.width =
-                percentages[stepNumber - 1] + "%";
-        }
-
-        progressSteps.forEach((step, index) => {
-
-            step.classList.remove("active", "complete");
-
-            const circle =
-                step.querySelector(".step-circle");
-
-            if (index + 1 < stepNumber) {
-
-                step.classList.add("complete");
-
-                if (circle) {
-                    circle.textContent = "✓";
-                }
-
-            } else {
-
-                if (circle) {
-                    circle.textContent = index + 1;
-                }
-            }
-
-            if (index + 1 === stepNumber) {
-                step.classList.add("active");
-            }
-        });
-
-       
+    if (progressFill) {
+        progressFill.style.width =
+            percentages[stepNumber - 1] + "%";
     }
+
+    progressSteps.forEach((step, index) => {
+
+        step.classList.remove("active", "complete");
+
+        const circle = step.querySelector(".step-circle");
+
+        const currentStep = index + 1;
+
+        if (currentStep < stepNumber) {
+
+            step.classList.add("complete");
+
+            if (circle) {
+                circle.textContent = "✓";
+            }
+
+        } else if (currentStep === stepNumber) {
+
+            step.classList.add("active");
+
+            if (circle) {
+                circle.textContent = currentStep;
+            }
+
+        } else {
+
+            if (circle) {
+                circle.textContent = currentStep;
+            }
+        }
+    });
+}
 
 
     // =====================================================
@@ -203,6 +226,7 @@ const priorityHelp =
                 appDescription.focus();
             });
         });
+
 
     // =====================================================
 // TYPING PLACEHOLDER EFFECT
@@ -424,7 +448,7 @@ updateAnalyzeButton();
             const data =
                 await response.json();
 
-
+ 
             console.log(
                 "AI analysis:",
                 data
@@ -643,7 +667,7 @@ if (budgetRequirementStatus) {
         valueElement.textContent =
             requirements.region ||
             "us-east-1";
-
+            
         statusElement.textContent =
             "Default";
 
@@ -862,7 +886,7 @@ if (budgetRequirementStatus) {
                     "Containers / Docker",
                     "Traditional server / VM",
                     "General application",
-                    "Not sure"
+                    "Not sure" 
                 ]
             });
         }
@@ -1046,45 +1070,45 @@ if (questions.length === 0) {
     // NEXT QUESTION
     // =====================================================
 
-    if (nextQuestionButton) {
+    if (
+        nextQuestionButton &&
+        !nextQuestionButton.dataset.listenerAttached
+    ) {
 
-        nextQuestionButton.addEventListener(
-            "click",
-            () => {
+        nextQuestionButton.dataset.listenerAttached = "true";
 
-                if (!selectedAnswer) {
+        nextQuestionButton.addEventListener("click", () => {
 
-                    alert(
-                        "Please choose an answer first."
-                    );
-
-                    return;
-                }
-
-
-                saveAnswer(
-                    questions[currentQuestion].key,
-                    selectedAnswer
+            const selectedButton =
+                answerOptions.querySelector(
+                    ".answer-option.selected"
                 );
 
-
-                currentQuestion++;
-
-
-                if (
-                    currentQuestion >=
-                    questions.length
-                ) {
-
-                    finishQuestions();
-
-                } else {
-
-                    displayQuestion();
-                }
+            if (!selectedButton) {
+                alert("Please choose an answer first.");
+                return;
             }
-        );
+
+            const answer =
+                selectedButton.textContent.trim();
+
+            saveAnswer(
+                questions[currentQuestion].key,
+                answer
+            );
+
+            currentQuestion++;
+
+            if (currentQuestion >= questions.length) {
+                finishQuestions();
+            } else {
+                displayQuestion();
+            }
+        });
     }
+
+   
+    
 
 
     // =====================================================
@@ -1303,6 +1327,8 @@ if (questions.length === 0) {
             requirements.infrastructureControl =
                 answer === "Not sure"
                     ? null
+
+                
                     : controlMap[answer];
         }
 
@@ -1523,6 +1549,7 @@ priorityOptions.forEach(
 
     // =====================================================
     // CREATE PAYLOAD
+
     // =====================================================
 
     function createRequirementsPayload() {
@@ -1596,14 +1623,15 @@ priorityOptions.forEach(
     // ARCHITECTURE PIPELINE
     // =====================================================
 
-    async function requestArchitectureAnalysis() {
+    async function requestArchitectureAnalysis(fromReview = false) {
 
-        confirmButton.disabled =
-            true;
+        const actionButton = fromReview ? reviewSaveButton : confirmButton;
+        if (!actionButton) return false;
+        actionButton.disabled = true;
 
 
         const originalButtonText =
-            confirmButton.textContent;
+            actionButton.textContent;
 
 
         const payload =
@@ -1627,7 +1655,7 @@ priorityOptions.forEach(
             // 1. GENERATE ARCHITECTURES
             // =================================================
 
-            confirmButton.textContent =
+            actionButton.textContent =
                 "Generating architectures...";
 
 
@@ -1676,7 +1704,7 @@ priorityOptions.forEach(
             // 2. COSTS
             // =================================================
 
-            confirmButton.textContent =
+            actionButton.textContent =
                 "Calculating costs...";
 
 
@@ -1720,7 +1748,7 @@ priorityOptions.forEach(
             // 3. EVALUATE
             // =================================================
 
-            confirmButton.textContent =
+            actionButton.textContent =
                 "Evaluating architectures...";
 
 
@@ -1742,6 +1770,7 @@ priorityOptions.forEach(
 
 
             if (!evaluationResponse.ok) {
+                
 
                 throw new Error(
                     "Evaluation API returned " +
@@ -1780,7 +1809,7 @@ priorityOptions.forEach(
             // 4. AI EXPLANATION
             // =================================================
 
-            confirmButton.textContent =
+            actionButton.textContent =
                 "Generating explanation...";
 
 
@@ -1865,7 +1894,7 @@ priorityOptions.forEach(
 // 5. TRADE-OFF ANALYSIS
 // =================================================
 
-confirmButton.textContent =
+actionButton.textContent =
     "Analyzing trade-offs...";
 
 try {
@@ -1921,7 +1950,7 @@ try {
 // 6. CONSTRAINT CONFLICT DETECTION
 // =================================================
 
-confirmButton.textContent =
+actionButton.textContent =
     "Checking constraints...";
 
 try {
@@ -1979,7 +2008,19 @@ try {
 
             populateArchitectureResults();
 
-            showScreen("results", 4);
+            if (fromReview) {
+                populateRecommendation();
+                populateReviewRequirements();
+                refreshReviewPriorities();
+                reviewEditForm.classList.add("hidden");
+                document.body.classList.remove("review-modal-open");
+                reviewSummaryContent.classList.remove("hidden");
+                editReviewButton.classList.remove("hidden");
+                showScreen("review", 6);
+            } else {
+                showScreen("results", 4);
+            }
+            return true;
 
 
         } catch (error) {
@@ -1990,18 +2031,16 @@ try {
             );
 
 
-            alert(
-                "Could not generate the architecture comparison. Check the backend and try again."
-            );
+            alert("Could not recalculate the architecture. Please try again.");
+            return false;
 
 
         } finally {
 
-            confirmButton.disabled =
-                false;
+            actionButton.disabled = false;
 
 
-            confirmButton.textContent =
+            actionButton.textContent =
                 originalButtonText;
         }
     }
@@ -2171,8 +2210,7 @@ try {
                 }
             }
         );
-
-
+        
         // =================================================
         // EVALUATION
         // =================================================
@@ -2392,7 +2430,7 @@ try {
         if (score >= 6) {
             return "Medium";
         }
-
+        
         return "Low";
     }
 
@@ -2612,7 +2650,7 @@ try {
 
 
         const recommendedCard =
-            Array.from(cards).find(
+            Array.from(cards).find( 
                 card =>
                     card.dataset
                         .architectureId ===
@@ -2712,12 +2750,784 @@ try {
             "Recommended visual applied to:",
             architectureId
         );
+ 
     }
 
+ 
+    // =====================================================
+    // REVIEW & REFINE NAVIGATION
+    // =====================================================
+
+    const labels = {
+        trafficPattern: {
+            steady: "Steady traffic",
+            bursty: "Bursty traffic",
+            spiky: "Bursty traffic",
+            seasonal: "Seasonal traffic"
+        },
+
+        database: {
+            postgresql: "PostgreSQL",
+            mysql: "MySQL",
+            dynamodb: "NoSQL / DynamoDB",
+            nosql: "NoSQL / DynamoDB",
+            none: "Not required",
+            unknown: "Not sure"
+        },
+
+        availability: {
+            standard: "Standard availability",
+            high: "High availability",
+            "high availability": "High availability"
+        },
+
+        workloadType: {
+            general: "General application",
+            "event-driven": "Event-driven",
+            containerized: "Containers / Docker",
+            "traditional-server": "Traditional server"
+        },
+
+        managementPreference: {
+            low: "Minimal management",
+            medium: "Some management",
+            "high-control": "Direct management"
+        },
+
+        infrastructureControl: {
+            low: "Low infrastructure control",
+            medium: "Medium infrastructure control",
+            high: "High infrastructure control"
+        },
+
+        region: {
+            "us-east-1": "US East (N. Virginia)"
+        }
+    };
+
+
+    function readable(field, value) {
+
+        if (value === null ||
+            value === undefined ||
+            value === "") {
+            return "Not specified";
+        }
+
+        const key = String(value).trim().toLowerCase();
+
+        return labels[field]?.[key] ?? String(value);
+    }
+
+
+    function populateReviewRequirements() {
+
+        const container =
+            document.getElementById("reviewRequirementsSummary");
+
+        if (!container) return;
+
+        const values = {
+            application: requirements.applicationType || "Not specified",
+            users: requirements.users == null ? "Not specified" : Number(requirements.users).toLocaleString() + " users",
+            traffic: readable("trafficPattern", requirements.trafficPattern),
+            database: readable("database", requirements.database),
+            storage: requirements.storage === true || String(requirements.storage).toLowerCase() === "required" ? "Required" : requirements.storage === false || String(requirements.storage).toLowerCase() === "not required" ? "Not required" : String(requirements.storage ?? "Not specified"),
+            availability: readable("availability", requirements.availability),
+            workload: readable("workloadType", requirements.workloadType),
+            management: readable("managementPreference", requirements.managementPreference),
+            control: readable("infrastructureControl", requirements.infrastructureControl),
+            region: readable("region", requirements.region),
+            budget: requirements.budget == null ? "Not specified" : "$" + Number(requirements.budget).toLocaleString()
+        };
+        // Compact read-only icon badges. Keep the existing edit form and state untouched.
+        container.replaceChildren();
+        const chipRow = document.createElement("div");
+        chipRow.className = "review-config-chips";
+        const chips = [
+            ["users", values.users],
+            ["activity", values.traffic],
+            ["database", values.database],
+            ["shield-check", values.availability],
+            ["container", values.workload],
+            ["hard-drive", "Storage: " + values.storage],
+            ["settings", values.management],
+            ["sliders-horizontal", values.control],
+            ["map-pin", values.region],
+            ["wallet", values.budget + " / month"]
+        ];
+        chips.forEach(([icon, label]) => {
+            const chip = document.createElement("span");
+            chip.className = "review-config-chip";
+            const symbol = document.createElement("i");
+            symbol.setAttribute("data-lucide", icon);
+            chip.append(symbol, document.createTextNode(label));
+            chipRow.appendChild(chip);
+        });
+        container.appendChild(chipRow);
+        if (window.lucide?.createIcons) window.lucide.createIcons();
+    }
+
+
+    // =====================================================
+    // NAVIGATION BUTTONS
+    // =====================================================
+
+    const reviewRefineButton =
+        document.getElementById("reviewRefineButton");
+
+    const continueDecisionButton =
+        document.getElementById("continueDecisionButton");
+
+    const backToRecommendationButton =
+        document.getElementById("backToRecommendationButton");
+
+
+    // Recommendation → Review & Refine
+    reviewRefineButton?.addEventListener("click", () => {
+
+        populateReviewRequirements();
+
+        showScreen("review", 6);
+
+    });
+
+
+    // Review & Refine → Recommendation
+    backToRecommendationButton?.addEventListener("click", () => {
+
+        showScreen("recommendation", 5);
+
+    });
+
+
+    // Review & Refine → Final Decision
+    continueDecisionButton?.addEventListener("click", () => {
+    if (populateFinalDecision()) {
+        showScreen("decision", 7);
+    }
+});
+
+
+function populateFinalDecision() {
+
+    const architecture = generatedArchitectures.find(
+        item => item.id === recommendedArchitectureId
+    );
+
+    if (!architecture) {
+        alert("Please complete the architecture evaluation first.");
+        return false;
+    }
+
+    const setDecisionText = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    };
+
+    const money = value =>
+        Number.isFinite(Number(value))
+            ? "$" + Number(value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })
+            : "Not available";
+
+    const costRecord = architectureCosts.find(
+        item => item.architecture_id === recommendedArchitectureId
+    );
+
+    const monthlyCost =
+        costRecord?.estimated_monthly_cost ??
+        costRecord?.monthly_cost ??
+        costRecord?.total_monthly_cost ??
+        costRecord?.total_cost ??
+        costRecord?.estimated_cost;
+
+    const budget = Number(requirements.budget);
+    const cost = monthlyCost == null ? NaN : Number(monthlyCost);
+
+    setDecisionText("decisionArchitectureName", architecture.name);
+
+    setDecisionText(
+        "decisionExplanation",
+        aiRecommendationExplanation ||
+        "This architecture was selected based on your requirements and priorities."
+    );
+
+    setDecisionText("decisionCost", money(cost));
+    setDecisionText("decisionBudget", money(budget));
+
+    setDecisionText(
+        "decisionBudgetStatus",
+        costRecord?.within_budget === true
+            ? "Within monthly budget"
+            : costRecord?.within_budget === false
+                ? "Over monthly budget"
+                : "Budget status unavailable"
+    );
+
+    setDecisionText(
+        "decisionRemainingBudget",
+        Number.isFinite(cost) && Number.isFinite(budget)
+            ? cost <= budget
+                ? `${money(budget - cost)} remaining in your budget`
+                : `${money(cost - budget)} over your budget`
+            : "Remaining budget unavailable"
+    );
+
+    
+    // ==========================================
+    // STAGE 7 — DYNAMIC BUDGET COLORS
+    // ==========================================
+
+    const isWithinBudget =
+        Number.isFinite(cost) &&
+        Number.isFinite(budget) &&
+        cost <= budget;
+
+    const budgetStatusElement =
+        document.getElementById("decisionBudgetStatus");
+
+    const budgetAlertElement =
+        document.getElementById("decisionBudgetAlert");
+
+    const budgetAlertSymbol =
+        budgetAlertElement?.querySelector(".decision-alert-symbol");
+
+    const budgetMessageElement =
+        document.getElementById("decisionBudgetMessage");
+
+    // Change colors based on the budget result
+    budgetStatusElement?.classList.toggle(
+        "is-within-budget",
+        isWithinBudget
+    );
+
+    budgetAlertElement?.classList.toggle(
+        "is-within-budget",
+        isWithinBudget
+    );
+    document.getElementById("decisionRemainingBudget")?.classList.toggle("canvas-within-budget", isWithinBudget);
+
+    // Update the icon
+    if (budgetAlertSymbol) {
+        budgetAlertSymbol.textContent =
+            isWithinBudget ? "✓" : "!";
+    }
+
+    // Update the message
+    if (budgetMessageElement) {
+        budgetMessageElement.textContent =
+            !Number.isFinite(cost) || !Number.isFinite(budget)
+                ? "Budget comparison is unavailable."
+                : isWithinBudget
+                    ? "This architecture fits your monthly budget."
+                    : "This architecture exceeds your monthly budget.";
+    }
+
+
+    
+// AWS services: use a matching Lucide icon for each service type.
+    const servicesList = document.getElementById("decisionServices");
+    if (servicesList) {
+        servicesList.replaceChildren();
+        const services = Array.isArray(architecture.services) ? architecture.services : [];
+        const iconForService = (name) => {
+            const s = name.toLowerCase();
+            if (s.includes("api gateway")) return "globe";
+            if (s.includes("lambda")) return "zap";
+            if (s.includes("s3")) return "hard-drive";
+            if (s.includes("aurora") || s.includes("rds") || s.includes("database")) return "database";
+            if (s.includes("ecs") || s.includes("fargate") || s.includes("container")) return "container";
+            if (s.includes("load balancer") || s.includes("alb")) return "network";
+            if (s.includes("auto scaling")) return "arrow-up-down";
+            if (s.includes("ec2")) return "server";
+            if (s.includes("cloudfront")) return "globe-2";
+            return "cloud";
+        };
+        services.forEach(service => {
+            const name = typeof service === "string" ? service : (service.name || service.service || "AWS service");
+            const li = document.createElement("li");
+            const icon = document.createElement("i");
+            icon.setAttribute("data-lucide", iconForService(name));
+            icon.setAttribute("aria-hidden", "true");
+            const title = document.createElement("span");
+            title.textContent = name;
+            li.append(icon, title);
+            servicesList.appendChild(li);
+        });
+        if (!services.length) {
+            const li = document.createElement("li");
+            li.textContent = "Service details are not available.";
+            servicesList.appendChild(li);
+        }
+    }
+    if (window.lucide?.createIcons) window.lucide.createIcons();
+
+    // Remaining conflicts and trade-offs
+    const considerations =
+        document.getElementById("decisionConsiderations");
+
+    if (considerations) considerations.replaceChildren();
+
+    const conflicts = Array.isArray(conflictAnalysis?.conflicts)
+        ? conflictAnalysis.conflicts
+        : [];
+
+    const addConsideration = text => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        considerations?.appendChild(li);
+    };
+
+    conflicts.forEach(conflict => {
+        const message = typeof conflict === "string"
+            ? conflict
+            : conflict.message || conflict.description;
+
+        if (message) addConsideration(message);
+    });
+
+    if (conflicts.length === 0) {
+        addConsideration("No unresolved conflicts were reported.");
+    }
+
+    // Reset confirmation when entering the screen
+    document.getElementById("decisionConfirmation")
+        ?.classList.add("hidden");
+
+    document.getElementById("confirmArchitectureButton")
+        ?.classList.remove("hidden");
+
+    document.getElementById("decisionStartOverButton")
+        ?.classList.add("hidden");
+
+    document.getElementById("downloadArchitectureReportButton")
+        ?.classList.add("hidden");
+    return true;
+}
+
+
+// Back to Stage 6
+document.getElementById("decisionBackButton")
+    ?.addEventListener("click", () => {
+        showScreen("review", 6);
+    });
+
+
+// Confirm architecture
+document.getElementById("confirmArchitectureButton")
+    ?.addEventListener("click", () => {
+
+        document.getElementById("decisionConfirmation")
+            ?.classList.remove("hidden");
+
+        document.getElementById("confirmArchitectureButton")
+            ?.classList.add("hidden");
+
+        document.getElementById("decisionStartOverButton")
+            ?.classList.remove("hidden");
+
+        document.getElementById("downloadArchitectureReportButton")
+            ?.classList.remove("hidden");
+    });
+
+
+
+// Download a PDF through the browser's built-in Print / Save as PDF dialog.
+// No external PDF library or server-side storage is required.
+document.getElementById("downloadArchitectureReportButton")
+    ?.addEventListener("click", () => {
+        const root = document.getElementById("architecturePrintableReport");
+        const architecture = generatedArchitectures.find(
+            item => item.id === recommendedArchitectureId
+        );
+        if (!root || !architecture) return;
+
+        const costRecord = architectureCosts.find(
+            item => item.architecture_id === recommendedArchitectureId
+        );
+        const estimatedCost = costRecord?.total_monthly_cost ??
+            costRecord?.estimated_monthly_cost ?? costRecord?.monthly_cost;
+        const money = value => value == null || !Number.isFinite(Number(value))
+            ? "Unavailable" : "$" + Number(value).toFixed(2);
+        const make = (tag, value, className) => {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            if (value !== undefined && value !== null) element.textContent = String(value);
+            return element;
+        };
+        const addSection = (title, entries) => {
+            root.appendChild(make("h2", title));
+            const table = make("table");
+            entries.forEach(([label, value]) => {
+                const row = make("tr");
+                row.append(make("th", label), make("td", value ?? "Not specified"));
+                table.appendChild(row);
+            });
+            root.appendChild(table);
+        };
+        root.replaceChildren();
+        root.appendChild(make("h1", "Cloud Architecture Decision Report"));
+        root.appendChild(make("p", "Generated " + new Date().toLocaleString(), "report-date"));
+        root.appendChild(make("h2", "Selected Architecture"));
+        root.appendChild(make("h3", architecture.name));
+        root.appendChild(make("p", aiRecommendationExplanation ||
+            "Selected based on the evaluated requirements and priorities."));
+        addSection("Application Requirements", [
+            ["Application", requirements.applicationType],
+            ["Description", appDescription?.value?.trim()],
+            ["Expected users", requirements.users],
+            ["Traffic", requirements.trafficPattern],
+            ["Database", requirements.database],
+            ["File storage", requirements.storage],
+            ["Availability", requirements.availability],
+            ["Workload", requirements.workloadType],
+            ["Management preference", requirements.managementPreference],
+            ["Infrastructure control", requirements.infrastructureControl],
+            ["AWS region", requirements.region],
+            ["Priorities", (requirements.userPriorities || []).join(", ") || "None selected"]
+        ]);
+        addSection("Cost and Budget", [
+            ["Estimated monthly cost", money(estimatedCost)],
+            ["Monthly budget", money(requirements.budget)],
+            ["Budget fit", estimatedCost == null ? "Unavailable" :
+                Number(estimatedCost) <= Number(requirements.budget) ? "Within budget" : "Over budget"]
+        ]);
+        root.appendChild(make("h2", "AWS Services"));
+        const serviceList = make("ul");
+        (architecture.services || []).forEach(service => serviceList.appendChild(
+            make("li", typeof service === "string" ? service :
+                [service.name, service.role].filter(Boolean).join(" — "))
+        ));
+        root.appendChild(serviceList);
+        root.appendChild(make("h2", "Conflicts and Considerations"));
+        const conflictList = make("ul");
+        const conflicts = Array.isArray(conflictAnalysis?.conflicts) ? conflictAnalysis.conflicts : [];
+        (conflicts.length ? conflicts : ["No unresolved conflicts were reported."])
+            .forEach(conflict => conflictList.appendChild(make("li",
+                typeof conflict === "string" ? conflict :
+                    conflict.message || conflict.description || "Conflict detected")));
+        root.appendChild(conflictList);
+        root.appendChild(make("p", "Estimates are for planning and are not an AWS price quote.", "report-footer"));
+        window.print();
+    });
+
+// Start over
+document.getElementById("decisionStartOverButton")
+    ?.addEventListener("click", () => {
+        window.location.reload();
+    });
+
+
+    // =============================================
+// REVIEW & REFINE — EDIT REQUIREMENTS
+// =============================================
+
+
+    const editReviewButton =
+    document.getElementById("editReviewRequirementsButton");
+
+const cancelReviewButton =
+    document.getElementById("cancelReviewEditButton");
+
+const reviewEditForm =
+    document.getElementById("reviewEditForm");
+
+const reviewRequirementsSummary =
+    document.getElementById("reviewRequirementsSummary");
+
+const reviewSummaryContent =
+    document.getElementById("reviewSummaryContent"); 
+
+
+// Step 6 save button and priority inputs
+const reviewSaveButton = document.getElementById("saveReviewRequirementsButton") ||
+    document.getElementById("saveReviewEditButton") ||
+    Array.from(reviewEditForm?.querySelectorAll("button") || [])
+        .find(button => /save\s*&\s*recalculate/i.test(button.textContent));
+
+const reviewPriorityInputs = () => Array.from(
+    reviewEditForm?.querySelectorAll('.review-priority-options input[type="checkbox"]') || []
+);
+
+function getReviewPriorityValue(input) { 
+    return input.dataset.priority || input.value;
+}
+
+function refreshReviewPriorities() {
+    const list = document.getElementById("recommendationPriorityList");
+    if (!list) return;
+    const labels = {
+        cost: "Lowest cost", low_management: "Less management",
+        infrastructure_control: "Maximum control", scalability: "High scalability",
+        availability: "High availability", balanced: "Balanced"
+    };
+    list.replaceChildren();
+    (requirements.userPriorities || []).forEach(priority => {
+        const item = document.createElement("li");
+        item.textContent = "✓ " + (labels[priority] || priority);
+        list.appendChild(item);
+    });
+}
+
+editReviewButton?.addEventListener("click", () => {
+
+    document.getElementById("editExpectedUsers").value =
+        requirements.users ?? "";
+
+    document.getElementById("editMonthlyBudget").value =
+        requirements.budget ?? "";
+
+    document.getElementById("editTrafficPattern").value =
+        requirements.trafficPattern ?? "unknown";
+
+    document.getElementById("editDatabase").value =
+        requirements.database ?? "unknown";
+
+    const availabilitySelect =
+    document.getElementById("editAvailability");
+
+    const availabilityValue = requirements.availability;
+
+    availabilitySelect.value =
+    availabilityValue === "high"
+        ? "high availability"
+        : availabilityValue || "standard";
+
+    if (availabilitySelect.selectedIndex === -1) {
+    availabilitySelect.value = "standard";
+    }
+
+    document.getElementById("editWorkloadType").value =
+    requirements.workloadType ?? "general";
+
+    document.getElementById("editManagementPreference").value =
+        requirements.managementPreference ?? "low";
+
+    document.getElementById("editInfrastructureControl").value =
+        requirements.infrastructureControl ?? "low";
+
+    document.getElementById("editStorage").value =
+        requirements.storage ?? "Unknown";
+
+    reviewPriorityInputs().forEach(input => {
+        input.checked = (requirements.userPriorities || []).includes(getReviewPriorityValue(input));
+    });
+
+    document.getElementById("editApplicationType").value = requirements.applicationType ?? "";
+    const regionInput = document.getElementById("editAwsRegion");
+    regionInput.value = requirements.region ?? "us-east-1";
+    if (regionInput.selectedIndex === -1) regionInput.value = "us-east-1";
+    reviewEditForm.classList.remove("hidden");
+    document.body.classList.add("review-modal-open");
+    document.getElementById("editApplicationType")?.focus();
+});
+
+cancelReviewButton?.addEventListener("click", () => {
+
+    // Close the popup without changing the requirements
+    reviewEditForm.classList.add("hidden");
+    document.body.classList.remove("review-modal-open");
+
+    // Show requirements and priorities summary
+    document
+        .getElementById("reviewSummaryContent")
+        .classList.remove("hidden");
+
+    // Show the Edit button again
+    editReviewButton.classList.remove("hidden");
+
+});
+document.getElementById("closeReviewModalButton")?.addEventListener("click", () => cancelReviewButton?.click());
+reviewEditForm?.addEventListener("click", event => { if (event.target === reviewEditForm) cancelReviewButton?.click(); });
+document.addEventListener("keydown", event => { if (event.key === "Escape" && !reviewEditForm?.classList.contains("hidden")) cancelReviewButton?.click(); });
+
+
+
+// Confirm a successful save only after the recalculation API returns successfully.
+let reviewSuccessToastTimer;
+function showReviewSuccessToast() {
+    const toast = document.getElementById("reviewSaveSuccessToast");
+    if (!toast) return;
+    toast.classList.add("is-visible");
+    clearTimeout(reviewSuccessToastTimer);
+    reviewSuccessToastTimer = setTimeout(() => toast.classList.remove("is-visible"), 4500);
+}
+
+let reviewHasSuccessfulEdit = false;
+
+function populateReviewUpdatedRecommendation(previousArchitectureId, wasEdited = reviewHasSuccessfulEdit) {
+    const panel = document.getElementById("reviewUpdatedRecommendation");
+    if (!panel) return;
+
+    const recommended = generatedArchitectures.find(item => String(item.id) === String(recommendedArchitectureId));
+    if (!recommended) {
+        panel.classList.add("hidden");
+        return;
+    }
+
+    setText("reviewRecommendationHeading", wasEdited ? "Recommendation updated" : "Current recommendation");
+    const viewButton = document.getElementById("viewUpdatedRecommendationButton");
+    // Details remain on Stage 6 so users do not lose their place.
+    setText("reviewDetailsTitle", `Why ${recommended.name}?`);
+    const explanation = aiRecommendationExplanation?.explanation ||
+        aiRecommendationExplanation?.summary ||
+        aiRecommendationExplanation?.reason ||
+        (typeof aiRecommendationExplanation === "string" ? aiRecommendationExplanation : "");
+    setText("reviewDetailsExplanation", explanation || `${recommended.name} is the best overall match for your selected requirements and priorities. Compare its cost and trade-offs before proceeding.`);
+    const continueButton = document.getElementById("continueDecisionButton");
+    if (continueButton) continueButton.textContent = `Continue with ${recommended.name} →`;
+
+    const formatMoney = value => Number.isFinite(Number(value))
+        ? "$" + Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : "Not available";
+    const monthlyCost = cost => cost?.estimated_monthly_cost ?? cost?.monthly_cost ??
+        cost?.total_monthly_cost ?? cost?.total_cost ?? cost?.estimated_cost;
+    const selectedCost = architectureCosts.find(item => item.architecture_id === recommendedArchitectureId);
+    const amount = monthlyCost(selectedCost);
+    const budget = Number(requirements.budget);
+    const allAmounts = generatedArchitectures.map(architecture => {
+        const cost = architectureCosts.find(item => item.architecture_id === architecture.id);
+        return monthlyCost(cost);
+    });
+    const allOverBudget = Number.isFinite(budget) && budget > 0 &&
+        allAmounts.length > 0 && allAmounts.every(value => value != null && Number.isFinite(Number(value)) && Number(value) > budget);
+
+    setText("reviewUpdatedArchitectureName", recommended.name);
+    setText("reviewUpdatedCost", amount == null ? "Not available" : formatMoney(amount));
+    setText("reviewUpdatedBudget", formatMoney(requirements.budget));
+
+    const previous = generatedArchitectures.find(item => item.id === previousArchitectureId);
+    setText("reviewRecommendationMessage", previousArchitectureId && previousArchitectureId !== recommendedArchitectureId
+        ? `Your recommendation changed from ${previous?.name || "the previous architecture"} to ${recommended.name}.`
+        : (wasEdited ? "Your updated requirements have been evaluated." : "Recommended based on your current requirements."));
+
+    const notice = document.getElementById("reviewUpdatedBudgetNotice");
+    if (notice) {
+        notice.classList.remove("is-over-budget", "is-within-budget", "is-unknown");
+        if (allOverBudget) {
+            notice.textContent = "None of the three evaluated architectures meets your monthly budget. This is the best overall match, not a budget-compliant option.";
+            notice.classList.add("is-over-budget");
+        } else if (amount != null && Number.isFinite(Number(amount)) && Number.isFinite(budget) && budget > 0) {
+            const difference = Number(amount) - budget;
+            notice.textContent = difference > 0
+                ? `${formatMoney(difference)} over your monthly budget.`
+                : "Within your monthly budget.";
+            notice.classList.add(difference > 0 ? "is-over-budget" : "is-within-budget");
+        } else {
+            notice.textContent = "Budget status is not available.";
+            notice.classList.add("is-unknown");
+        }
+    }
+    panel.classList.remove("hidden");
+}
+
+document.getElementById("viewUpdatedRecommendationButton")?.addEventListener("click", () => {
+    const button = document.getElementById("viewUpdatedRecommendationButton");
+    const details = document.getElementById("reviewRecommendationDetails");
+    if (!button || !details) return;
+    const opening = details.classList.contains("hidden");
+    details.classList.toggle("hidden", !opening);
+    button.setAttribute("aria-expanded", String(opening));
+    const chevron = button.querySelector(".review-details-chevron");
+    if (chevron) chevron.style.transform = opening ? "rotate(180deg)" : "";
+});
+
+// Save and recalculate from Step 6
+reviewSaveButton?.addEventListener("click", async event => {
+    event.preventDefault();
+    const usersInput = document.getElementById("editExpectedUsers");
+    const budgetField = document.getElementById("editMonthlyBudget");
+    const users = Number(usersInput?.value);
+    const budget = Number(budgetField?.value);
+    if (!Number.isInteger(users) || users <= 0) {
+        alert("Enter a valid number of expected users.");
+        usersInput?.focus();
+        return;
+    }
+    if (!Number.isFinite(budget) || budget <= 0) {
+        alert("Enter a monthly budget greater than zero.");
+        budgetField?.focus();
+        return;
+    }
+
+    const priorities = reviewPriorityInputs()
+        .filter(input => input.checked)
+        .map(getReviewPriorityValue);
+    if (priorities.length === 0 || priorities.length > 2 ||
+        (priorities.includes("balanced") && priorities.length > 1)) {
+        alert("Choose one or two priorities. Balanced must be selected alone.");
+        return;
+    }
+
+    const appType = document.getElementById("editApplicationType")?.value.trim();
+    if (!appType) { alert("Enter an application type."); document.getElementById("editApplicationType")?.focus(); return; }
+    const previousArchitectureId = recommendedArchitectureId;
+
+    const previous = { ...requirements, userPriorities: [...(requirements.userPriorities || [])] };
+    requirements.applicationType = appType;
+    requirements.region = document.getElementById("editAwsRegion")?.value || previous.region;
+    requirements.users = users;
+    requirements.budget = budget;
+    requirements.trafficPattern = document.getElementById("editTrafficPattern")?.value || previous.trafficPattern;
+    requirements.database = document.getElementById("editDatabase")?.value || previous.database;
+    requirements.availability = document.getElementById("editAvailability")?.value || previous.availability;
+    requirements.userPriorities = priorities;
+
+    requirements.workloadType =
+    document.getElementById("editWorkloadType").value;
+
+    requirements.managementPreference =
+        document.getElementById("editManagementPreference").value;
+
+    requirements.infrastructureControl =
+        document.getElementById("editInfrastructureControl").value;
+
+    requirements.storage =
+        document.getElementById("editStorage").value;
+
+   const succeeded = await requestArchitectureAnalysis(true);
+
+if (!succeeded) {
+    requirements = previous;
+} else {
+    reviewHasSuccessfulEdit = true;
+    populateReviewUpdatedRecommendation(previousArchitectureId, true);
+    populateConflicts(); // Hide duplicate budget warnings, keep unrelated conflicts.
+    showReviewSuccessToast();
+}
+});
 
 // =====================================================
 // CONSTRAINT CONFLICT DISPLAY
 // =====================================================
+
+const assumptionCountElement = document.getElementById("assumptionsCount");
+const assumptionSummaryElement = document.getElementById("assumptionsDescription");
+if (assumptionCountElement && assumptionSummaryElement) {
+    const syncAssumptionSummary = () => {
+        const count = assumptionCountElement.textContent.trim();
+        assumptionSummaryElement.textContent = count;
+    };
+    new MutationObserver(syncAssumptionSummary).observe(assumptionCountElement, { childList: true, characterData: true, subtree: true });
+    syncAssumptionSummary();
+}
+
+// Accessible expandable conflict and assumption details.
+[["conflictsToggle", "conflictsList"], ["assumptionsToggle", "assumptionsList"]].forEach(([buttonId, panelId]) => {
+    const toggle = document.getElementById(buttonId);
+    const panel = document.getElementById(panelId);
+    if (!toggle || !panel) return;
+    toggle.addEventListener("click", () => {
+        const open = toggle.getAttribute("aria-expanded") !== "true";
+        toggle.setAttribute("aria-expanded", String(open));
+        panel.classList.toggle("hidden", !open);
+        const action = toggle.querySelector(".review-disclosure-action");
+        if (action) action.textContent = open ? "Hide ⌃" : "View ⌄";
+    });
+});
 
 function populateConflicts() {
 
@@ -2744,7 +3554,13 @@ function populateConflicts() {
             ? conflictAnalysis.conflicts
             : [];
 
-    const total = conflicts.length;
+    // The compact result already explains a budget violation. Do not repeat
+    // that same warning in the separate conflicts panel after recalculation.
+    const updatedResultVisible = !document.getElementById("reviewUpdatedRecommendation")?.classList.contains("hidden");
+    const visibleConflicts = updatedResultVisible
+        ? conflicts.filter(conflict => !/budget|monthly cost|monthly price|afford|\$[0-9]/i.test(conflict.message || ""))
+        : conflicts;
+    const total = visibleConflicts.length;
 
     // Update the conflict count
     if (conflictsCount) {
@@ -2759,7 +3575,7 @@ function populateConflicts() {
     }
 
     // Display each detected conflict
-    conflicts.forEach(conflict => {
+    visibleConflicts.forEach(conflict => {
 
         const item =
             document.createElement("div");
@@ -2784,8 +3600,10 @@ function populateConflicts() {
 
     });
 
-    // Show the card
+    // Show the card while preserving the user's expanded/collapsed choice.
     card.classList.remove("hidden");
+    const summary = document.getElementById("conflictsSummary");
+    if (summary) summary.textContent = `${visibleConflicts.length} conflict${visibleConflicts.length === 1 ? "" : "s"} detected`;
 }
 
 
@@ -2794,16 +3612,12 @@ function populateConflicts() {
 // TRADE-OFF CRITERION LABELS
 // =====================================================
 
-function formatTradeoffCriterion(
-    criterion,
-    direction
-) {
+function formatTradeoffCriterion(criterion, direction) {
 
     const labels = {
-
         "Budget fit": {
-            gain: "Fits your budget better",
-            loss: "Less suitable for your budget"
+            gain: "Better budget fit",
+            loss: "Worse budget fit"
         },
 
         "Workload fit": {
@@ -2812,35 +3626,32 @@ function formatTradeoffCriterion(
         },
 
         "Scalability": {
-            gain: "Better able to scale with demand",
-            loss: "Less able to handle growth or traffic changes"
+            gain: "Better scalability fit",
+            loss: "Lower scalability fit"
         },
 
         "Management fit": {
-            gain: "Easier to manage",
-            loss: "Requires more infrastructure management"
+            gain: "Better matches your management and control preferences",
+            loss: "Less suited to your management and control preferences"
         },
 
         "Requirement fit": {
             gain: "Better matches your application requirements",
-            loss: "Matches fewer of your application requirements"
+            loss: "Less suited to your application requirements"
         }
     };
 
+    const label = labels[criterion];
 
-    if (
-        labels[criterion] &&
-        labels[criterion][direction]
-    ) {
-
-        return labels[criterion][direction];
+    if (label && label[direction]) {
+        return label[direction];
     }
 
-
     return direction === "gain"
-        ? "Better fit"
-        : "Less suitable";
+        ? `Better fit for ${criterion}`
+        : `Worse fit for ${criterion}`;
 }
+
     // =====================================================
 // TRADE-OFF DISPLAY
 // =====================================================
@@ -3049,7 +3860,7 @@ function populateTradeoffs() {
 
             lossesSection.className =
                 "tradeoff-section";
-
+                
 
             const lossesTitle =
                 document.createElement("span");
@@ -3210,65 +4021,96 @@ function populateTradeoffs() {
         
 
 
-        // =================================================
-        // SERVICES
-        // =================================================
+       // =================================================
+// SERVICES
+// =================================================
 
-        const servicesContainer =
-            document.getElementById(
-                "recommendedServices"
-            );
+const servicesContainer =
+    document.getElementById("recommendedServices");
 
+if (servicesContainer) {
+    servicesContainer.replaceChildren();
 
-        if (servicesContainer) {
+    const services = Array.isArray(recommendedArchitecture.services)
+        ? recommendedArchitecture.services
+        : [];
 
-            servicesContainer.innerHTML =
-                "";
+    services.forEach(service => {
+        const name = typeof service === "string"
+            ? service
+            : service?.name || service?.service || "AWS service";
 
+        const lowerName = name.toLowerCase();
 
-            recommendedArchitecture
-                .services
-                .forEach(service => {
+        let symbol = "☁";
 
-                    const serviceBox =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    const icon =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    icon.textContent =
-                        getServiceShortName(
-                            service.name
-                        );
-
-
-                    const name =
-                        document.createElement(
-                            "strong"
-                        );
-
-
-                    name.textContent =
-                        service.name;
-
-
-                    serviceBox.appendChild(icon);
-                    serviceBox.appendChild(name);
-
-                    servicesContainer.appendChild(
-                        serviceBox
-                    );
-                });
+        if (lowerName.includes("load balancer")) {
+            symbol = "◇";
+        } else if (
+            lowerName.includes("ecs") ||
+            lowerName.includes("fargate") ||
+            lowerName.includes("container")
+        ) {
+            symbol = "⬡";
+        } else if (lowerName.includes("s3")) {
+            symbol = "▱";
+        } else if (
+            lowerName.includes("rds") ||
+            lowerName.includes("database") ||
+            lowerName.includes("aurora") ||
+            lowerName.includes("dynamodb")
+        ) {
+            symbol = "▤";
+        } else if (lowerName.includes("lambda")) {
+            symbol = "λ";
+        } else if (lowerName.includes("ec2")) {
+            symbol = "▣";
         }
+
+        // Stage 5 presentation only: label each service by its role.
+        // The AWS service names and backend recommendation remain unchanged.
+        let serviceRole = "SERVICE";
+        if (lowerName.includes("load balancer") || lowerName.includes("api gateway") || lowerName.includes("cloudfront")) {
+            serviceRole = "TRAFFIC";
+        } else if (lowerName.includes("s3") || lowerName.includes("storage") || lowerName.includes("efs")) {
+            serviceRole = "STORAGE";
+        } else if (lowerName.includes("rds") || lowerName.includes("aurora") || lowerName.includes("dynamodb") || lowerName.includes("database")) {
+            serviceRole = "DATABASE";
+        } else if (lowerName.includes("ecs") || lowerName.includes("fargate") || lowerName.includes("lambda") || lowerName.includes("ec2") || lowerName.includes("compute") || lowerName.includes("container")) {
+            serviceRole = "COMPUTE";
+        }
+
+        const tile = document.createElement("li");
+        const role = document.createElement("span");
+        role.className = "service-role";
+        role.textContent = serviceRole;
+
+        const icon = document.createElement("span");
+        icon.className = "decision-service-icon";
+        icon.textContent = symbol;
+        icon.setAttribute("aria-hidden", "true");
+
+        const title = document.createElement("span");
+        title.className = "decision-service-name";
+        title.textContent = name;
+
+        const heading = document.createElement("div");
+        heading.className = "service-role-heading";
+        heading.append(icon, role);
+        tile.append(heading, title);
+        servicesContainer.appendChild(tile);
+    });
+
+    if (services.length === 0) {
+        const message = document.createElement("li");
+        message.textContent = "Service details are not available.";
+        servicesContainer.appendChild(message);
+    }
+}
                 // =================================================
         // USER PRIORITIES
         // =================================================
+
 
         const prioritiesContainer =
             document.getElementById(
@@ -3489,15 +4331,15 @@ if (
     const assumptions = Array.isArray(recommendationAssumptions)
         ? recommendationAssumptions.filter(
             assumption =>
-                typeof assumption === "string" &&
+                typeof assumption === "string" && 
                 assumption.trim().length > 0
           )
         : [];
 
     const total = assumptions.length;
 
-    // Always show the assumptions card
-    assumptionsCard.classList.remove("hidden");
+    // Hide the entire card when there are no assumptions.
+    assumptionsCard.classList.toggle("hidden", total === 0);
 
     // Update assumption count
     assumptionsCount.textContent =
@@ -3520,7 +4362,8 @@ if (
             assumptionsList.appendChild(item);
         });
 
-        assumptionsList.classList.remove("hidden");
+        assumptionsList.classList.toggle("hidden",
+            document.getElementById("assumptionsToggle")?.getAttribute("aria-expanded") !== "true");
 
     } else {
 
@@ -3711,6 +4554,9 @@ if (recommendedCost) {
     }
 
 
+
+
+
     // =====================================================
     // BUDGET STATUS
     // =====================================================
@@ -3871,3 +4717,20 @@ if (recommendedCost) {
 
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       

@@ -113,6 +113,26 @@
 
             </div>
 
+            <!-- STEP 6 -->
+             <div class="workflow-step">
+                <div class="step-circle">6</div>
+
+                <div class="step-info">
+                    <strong>Review & Refine</strong>
+                    <span>Adjust choices</span>
+                </div>
+            </div>
+
+            <!-- STEP 7 -->
+            <div class="workflow-step">
+                <div class="step-circle">7</div>
+
+                <div class="step-info">
+                    <strong>Final Decision</strong>
+                    <span>Confirm architecture</span>
+                </div>
+            </div>
+
         </div>
 
     </section>
@@ -132,9 +152,6 @@
 
                 <div class="hero-copy">
 
-                    <span class="eyebrow">
-                        AWS ARCHITECTURE RECOMMENDER
-                    </span>
 
                     <h1>
                         Plan your AWS architecture
@@ -333,32 +350,33 @@
                     </span>
 
                     <h1>
-                        Here's what we understood
+                        Review your requirements
                     </h1>
 
                     <p>
-                        Review the details before comparing
-                        AWS architecture options.
+                        Check the details before comparing AWS architectures.
                     </p>
 
                 </div>
 
 
-                <div class="request-card">
-
-                    <span class="small-label">
-                        YOUR REQUEST
-                    </span>
-
-                    <p id="requestText"></p>
-
-                </div>
-
+                <div class="analysis-unified-card">
+                    <div class="analysis-unified-header">
+                        <div>
+                            <h2>Your Request &amp; Requirements</h2>
+                            <p>AI analysis of your application requirements</p>
+                        </div>
+                        <span class="analysis-analyzed-label">Analyzed</span>
+                    </div>
+                    <div class="request-card">
+                        <span class="small-label"><i data-lucide="file-text" aria-hidden="true"></i> YOUR REQUEST</span>
+                        <p id="requestText"></p>
+                    </div>
 
                 <div class="requirements-grid">
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">◫</div>
+                        <div class="requirement-icon"><i data-lucide="app-window" aria-hidden="true"></i></div>
                         <div>
                             <span>Application type</span>
                             <strong id="applicationType">Not specified</strong>
@@ -368,7 +386,7 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">♟</div>
+                        <div class="requirement-icon"><i data-lucide="users" aria-hidden="true"></i></div>
                         <div>
                             <span>Expected users</span>
                             <strong id="expectedUsers">Not specified</strong>
@@ -378,7 +396,7 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">↗</div>
+                        <div class="requirement-icon"><i data-lucide="activity" aria-hidden="true"></i></div>
                         <div>
                             <span>Traffic pattern</span>
                             <strong id="trafficRequirement">Not specified</strong>
@@ -388,7 +406,7 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">◉</div>
+                        <div class="requirement-icon"><i data-lucide="database" aria-hidden="true"></i></div>
                         <div>
                             <span>Database</span>
                             <strong id="databaseRequirement">Not specified</strong>
@@ -398,7 +416,7 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">▣</div>
+                        <div class="requirement-icon"><i data-lucide="hard-drive" aria-hidden="true"></i></div>
                         <div>
                             <span>File storage</span>
                             <strong id="storageRequirement">Not specified</strong>
@@ -408,7 +426,7 @@
 
 
                     <div class="requirement-card">
-                        <div class="requirement-icon">✓</div>
+                        <div class="requirement-icon"><i data-lucide="shield-check" aria-hidden="true"></i></div>
                         <div>
                             <span>Availability</span>
                             <strong id="availabilityRequirement">Not specified</strong>
@@ -417,8 +435,8 @@
                     </div>
 
 
-                    <div class="requirement-card">
-                        <div class="requirement-icon">◎</div>
+                    <div class="requirement-card planning-setting-card">
+                        <div class="requirement-icon"><i data-lucide="map-pin" aria-hidden="true"></i></div>
                         <div>
                             <span>AWS Region</span>
                             <strong id="regionRequirement">us-east-1</strong>
@@ -427,8 +445,8 @@
                     </div>
 
 
-                    <div class="requirement-card">
-    <div class="requirement-icon">$</div>
+                    <div class="requirement-card planning-setting-card">
+    <div class="requirement-icon"><i data-lucide="wallet" aria-hidden="true"></i></div>
 
     <div>
         <span>Maximum budget</span>
@@ -447,6 +465,8 @@
 
                 </div>
 
+
+                </div><!-- /analysis-unified-card -->
 
                 <div
                     id="followupPanel"
@@ -704,6 +724,8 @@
 
                     </button>
 
+                
+
 
                     <button
                         id="confirmButton"
@@ -714,6 +736,8 @@
                         Confirm requirements →
 
                     </button>
+
+                    
 
                 </div>
 
@@ -1220,21 +1244,22 @@
 <!-- ARCHITECTURE DETAILS -->
 <div class="architecture-details">
 
-    <h3>Architecture details</h3>
+    <div class="architecture-flow-heading">
+        <div>
+            <h3>Architecture components</h3>
+            <p>Services grouped by their role</p>
+        </div>
+        <i data-lucide="workflow" aria-hidden="true"></i>
+    </div>
 
     <div class="architecture-details-grid">
 
         <div class="architecture-detail-item">
-            <span class="small-label">
-                <i data-lucide="cloud"></i>
-                AWS SERVICES
-            </span>
-
             <div id="recommendedServices"
                  class="final-services"></div>
         </div>
 
-        <div id="recommendationPriorities"
+       <!-- <div id="recommendationPriorities"
              class="architecture-detail-item hidden">
 
             <span class="small-label">
@@ -1244,7 +1269,7 @@
 
             <div id="recommendationPriorityList"
                  class="recommendation-priority-list"></div>
-        </div>
+        </div>  -->
 
     </div>
 
@@ -1259,99 +1284,7 @@
 
 
 
-<!-- POTENTIAL CONFLICTS -->
 
-<div id="conflictsCard" class="conflicts-card hidden">
-
-    <div class="conflicts-heading">
-
-        <span class="conflicts-icon">
-            <i data-lucide="alert-triangle"></i>
-        </span>
-
-        <div class="conflicts-heading-text">
-            <h3>Potential conflicts</h3>
-            <p>
-                Some of your requirements may conflict
-                with each other.
-            </p>
-        </div>
-
-        <span id="conflictsCount" class="conflicts-count">
-            0 conflicts
-        </span>
-
-    </div>
-
-    <div id="conflictsList" class="conflicts-list"></div>
-
-</div>
-
-
-            
-
-
-<!-- ASSUMPTIONS -->
-
-<div id="assumptionsCard" class="assumptions-card">
-
-    <div class="assumptions-heading">
-
-        <span class="assumptions-icon">
-            <i data-lucide="clipboard-list"></i>
-        </span>
-
-        <div class="assumptions-heading-text">
-            <h3>Assumptions used</h3>
-
-            <p id="assumptionsDescription">
-                No assumptions were needed for this analysis.
-            </p>
-        </div>
-
-        <span id="assumptionsCount" class="assumptions-count">
-            0 assumptions
-        </span>
-
-    </div>
-
-    <ul id="assumptionsList" class="hidden"></ul>
-
-</div>
-
-
-<!-- =================================================
-     TRADE-OFF / WHAT-IF ANALYSIS
-================================================== -->
-
-<div
-    id="tradeoffCard"
-    class="tradeoff-card hidden">
-
-    <div class="tradeoff-heading">
-
-        <div>
-            <span class="small-label">
-                EXPLORE ALTERNATIVES
-            </span>
-
-            <h3>
-                What if you choose another architecture?
-            </h3>
-
-            <p>
-                Compare the benefits and trade-offs of choosing another AWS architecture.
-            </p>
-        </div>
-
-    </div>
-
-    <div
-        id="tradeoffAlternatives"
-        class="tradeoff-alternatives">
-    </div>
-
-</div>
 
 
 
@@ -1380,23 +1313,518 @@
                         ← Back to comparison
 
                     </button>
+                    <button
+                    id="reviewRefineButton"
+                    class="primary-button"
+                    type="button">
+                    Review & Refine
+                </button>
+
+                
                 </div>
 
             </div>
 
-      <!--  <div class="start-over-container">
-    <button
-        id="startOverButton"
-        type="button"
-        class="secondary-button start-over-button">
-        Start a new recommendation
-    </button> 
-</div> -->
+ </section>
+
+     
+<!-- =====================================================
+     SCREEN 6: REVIEW & REFINE
+===================================================== -->
+
+<section
+    id="reviewScreen"
+    class="screen review-screen hidden">
+
+    <div class="recommendation-container">
+
+        <!-- =============================================
+             PAGE HEADER
+        ============================================== -->
+
+        <div class="review-header">
+
+            <h1>Review & Refine</h1>
+
+            <p>
+                Review your requirements, explore alternatives,
+                and make changes before your final decision.
+            </p>
+
+        </div>
+
+
+<!-- REQUIREMENTS & PRIORITIES -->
+
+<div class="review-section">
+
+    <div class="review-heading-row">
+        <div class="review-heading-text">
+            <h2>Your Requirements &amp; Priorities</h2>
+            <p>
+                Review or update the information used
+                to evaluate your cloud architecture.
+            </p>
+        </div>
+
+        <button
+            id="editReviewRequirementsButton"
+            class="review-edit-button"
+            type="button">
+            <i data-lucide="pencil"></i>
+            Edit Requirements
+        </button>
+    </div>
+
+    <!-- READ-ONLY SUMMARY -->
+
+    <div id="reviewSummaryContent">
+
+        <div
+            id="reviewRequirementsSummary"
+            class="review-requirements-summary">
+        </div>
+
+        <div class="review-priorities-block">
+
+            <h3 class="review-subheading">
+                Your Priorities
+            </h3>
+
+            <div id="recommendationPriorities">
+                <ul
+                    id="recommendationPriorityList"
+                    class="recommendation-priority-list">
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EDITING FORM -->
+
+    <div id="reviewEditForm" class="review-edit-form hidden" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+        <div class="review-modal-panel">
+        <div class="review-modal-heading">
+            <div><h3 id="reviewModalTitle">Edit cloud requirements</h3><p>Update your settings, then recalculate the recommendation.</p></div>
+            <button id="closeReviewModalButton" type="button" class="review-modal-close" aria-label="Close edit form">&times;</button>
+        </div>
+
+        <div class="review-edit-grid">
+            <label>Application type
+                <input id="editApplicationType" type="text" required>
+            </label>
+            <label>AWS region
+                <select id="editAwsRegion">
+                    <option value="us-east-1">US East (N. Virginia)</option>
+                    <option value="us-east-2">US East (Ohio)</option>
+                    <option value="us-west-2">US West (Oregon)</option>
+                    <option value="eu-west-1">Europe (Ireland)</option>
+                </select>
+            </label>
+            <label>
+                Expected users
+                <input
+                    id="editExpectedUsers"
+                    type="number"
+                    min="1">
+            </label>
+
+            <label>
+                Monthly budget ($)
+                <input
+                    id="editMonthlyBudget"
+                    type="number"
+                    min="1">
+            </label>
+
+            <label>
+                Traffic pattern
+                <select id="editTrafficPattern">
+                    <option value="unknown">Not sure</option>
+                    <option value="steady">Steady</option>
+                    <option value="bursty">Bursty</option>
+                    <option value="seasonal">Seasonal</option>
+                </select>
+            </label>
+
+            <label>
+                Database
+                <select id="editDatabase">
+                    <option value="unknown">Not sure</option>
+                    <option value="none">Not required</option>
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="mysql">MySQL</option>
+                    <option value="dynamodb">NoSQL / DynamoDB</option>
+                </select>
+            </label>
+
+            <label>
+                Availability
+                <select id="editAvailability">
+                    <option value="standard">Standard</option>
+                    <option value="high availability">
+                        High availability
+                    </option>
+                    <option value="unknown">Not sure</option>
+                </select>
+            </label>
+
+            <label>
+                Workload type
+                <select id="editWorkloadType">
+                    <option value="general">General application</option>
+                    <option value="event-driven">Event-driven</option>
+                    <option value="containerized">Containers / Docker</option>
+                    <option value="traditional-server">Traditional server</option>
+                </select>
+            </label>
+
+            <label>
+                Management preference
+                <select id="editManagementPreference">
+                    <option value="low">Minimal management</option>
+                    <option value="medium">Some management</option>
+                    <option value="high-control">Direct management</option>
+                </select>
+            </label>
+
+            <label>
+                Infrastructure control
+                <select id="editInfrastructureControl">
+                    <option value="low">Low control</option>
+                    <option value="medium">Medium control</option>
+                    <option value="high">Full server / OS control</option>
+                </select>
+            </label>
+
+            <label>
+                File storage
+                <select id="editStorage">
+                    <option value="Required">Required</option>
+                    <option value="Not required">Not required</option>
+                    <option value="Unknown">Not sure</option>
+                </select>
+            </label>
+
+        </div>
+
+        <div class="review-priorities-editor">
+
+            <h3 class="review-subheading">
+                Edit Your Priorities
+            </h3>
+
+            <p class="review-edit-help">
+                Choose up to two priorities.
+            </p>
+
+            <div id="reviewPriorityOptions"
+                 class="review-priority-options">
+
+                <label><input type="checkbox" value="cost"> Lowest cost</label>
+                <label><input type="checkbox" value="low_management"> Less management</label>
+                <label><input type="checkbox" value="infrastructure_control"> Maximum control</label>
+                <label><input type="checkbox" value="scalability"> High scalability</label>
+                <label><input type="checkbox" value="availability"> High availability</label>
+                <label><input type="checkbox" value="balanced"> Balanced</label>
+
+            </div>
+
+        </div>
+
+        <div class="review-edit-actions">
+
+            <button
+                id="cancelReviewEditButton"
+                class="secondary-button"
+                type="button">
+                Cancel
+            </button>
+
+            <button
+                id="saveReviewRequirementsButton"
+                class="primary-button"
+                type="button">
+                Save &amp; Recalculate
+            </button>
+
+        </div>
+        </div>
+    </div>
+
+</div>
+
+        
+
+
+
+        <!-- =============================================
+             POTENTIAL CONFLICTS
+        ============================================== -->
+
+        <!-- COMPACT RECALCULATION RESULT -->
+        <section id="reviewUpdatedRecommendation" class="review-section review-updated-recommendation hidden" aria-live="polite">
+            <div class="review-result-heading">
+                <span class="review-result-check" aria-hidden="true">✓</span>
+                <div>
+                    <h2 id="reviewRecommendationHeading">Current recommendation</h2>
+                    <p id="reviewRecommendationMessage">Recommended based on your current requirements.</p>
+                </div>
+            </div>
+            <div class="review-result-highlight">
+                <div class="review-result-topline">
+                    <div>
+                        <span class="review-result-eyebrow">RECOMMENDED ARCHITECTURE</span>
+                        <div class="review-architecture-name"><span class="review-architecture-icon"><i data-lucide="cloud" aria-hidden="true"></i></span><h3 id="reviewUpdatedArchitectureName">-</h3></div>
+                    </div>
+                    <span class="review-result-pill">Recommended</span>
+                </div>
+                <div class="review-result-stats">
+                    <div><span>Estimated monthly cost</span><strong id="reviewUpdatedCost">-</strong></div>
+                    <div><span>Monthly budget</span><strong id="reviewUpdatedBudget">-</strong></div>
+                </div>
+                <p id="reviewUpdatedBudgetNotice" class="review-budget-notice" role="status"></p>
+            </div>
+        <div
+            id="conflictsCard"
+            class="conflicts-card review-disclosure hidden">
+
+            <button class="conflicts-heading review-disclosure-toggle" id="conflictsToggle" type="button" aria-expanded="false" aria-controls="conflictsList">
+
+                <span class="conflicts-icon">
+                    <i data-lucide="alert-triangle"></i>
+                </span>
+
+                <div class="conflicts-heading-text">
+
+                    <h3>Potential conflicts</h3>
+
+                    <p id="conflictsSummary">Review the detected trade-offs</p>
+
+                </div>
+
+                <span
+                    id="conflictsCount"
+                    class="conflicts-count review-disclosure-count">
+                    0 conflicts
+                </span>
+
+                <span class="review-disclosure-action">View <span aria-hidden="true">⌄</span></span>
+            </button>
+
+            <div
+                id="conflictsList"
+                class="conflicts-list hidden">
+            </div>
+
+        </div>
+
+
+        <!-- =============================================
+             ASSUMPTIONS
+        ============================================== -->
+
+        <div
+            id="assumptionsCard"
+            class="assumptions-card review-disclosure hidden">
+
+            <button class="assumptions-heading review-disclosure-toggle" id="assumptionsToggle" type="button" aria-expanded="false" aria-controls="assumptionsList">
+
+                <span class="assumptions-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </span>
+
+                <div class="assumptions-heading-text">
+
+                    <h3>Assumptions used</h3>
+
+                    <p id="assumptionsDescription">Review the assumptions used</p>
+
+                </div>
+
+                <span
+                    id="assumptionsCount"
+                    class="assumptions-count review-disclosure-count">
+                    0 assumptions
+                </span>
+
+                <span class="review-disclosure-action">View <span aria-hidden="true">⌄</span></span>
+            </button>
+
+            <ul
+                id="assumptionsList"
+                class="hidden">
+            </ul>
+
+        </div>
+
+
+
+            <button id="viewUpdatedRecommendationButton" class="review-details-toggle" type="button" aria-expanded="false" aria-controls="reviewRecommendationDetails">
+                <span class="review-details-label"><i data-lucide="info" aria-hidden="true"></i> View Recommendation Details</span>
+                <i data-lucide="chevron-down" class="review-details-chevron" aria-hidden="true"></i>
+            </button>
+            <div id="reviewRecommendationDetails" class="review-details-panel hidden">
+                <h3 id="reviewDetailsTitle">Why this architecture?</h3>
+                <p id="reviewDetailsExplanation">Review why this architecture was recommended for your requirements.</p>
+            </div>
+        </section>
+
+        <!-- =============================================
+             TRADE-OFF / WHAT-IF ANALYSIS
+        ============================================== -->
+
+        <div
+            id="tradeoffCard"
+            class="tradeoff-card hidden">
+
+            <div class="tradeoff-heading">
+
+                <div>
+
+                    <span class="small-label">
+                        COMPARE BEFORE YOU DECIDE
+                    </span>
+
+                    <h3>
+                        What if you choose another architecture?
+                    </h3>
+
+                    <p>
+                        Compare the benefits and trade-offs
+                        of choosing another AWS architecture.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div
+                id="tradeoffAlternatives"
+                class="tradeoff-alternatives">
+            </div>
+
+        </div>
+
+
+        <!-- Final step: clear choice and editing actions -->
+        <section class="review-final-step review-final-step-modern" aria-labelledby="reviewFinalStepTitle">
+            <div class="review-final-step-heading">
+                <span class="review-final-step-icon" aria-hidden="true"><i data-lucide="flag"></i></span>
+                <div>
+                    <h3 id="reviewFinalStepTitle">Ready to make your final decision?</h3>
+                    <p>Proceed with the recommended architecture or edit your requirements.</p>
+                </div>
+            </div>
+            <div class="review-final-step-actions">
+                
+                <button id="continueDecisionButton" class="primary-button review-final-step-button" type="button">
+                    Continue with recommended architecture →
+                </button>
+            </div>
+        </section>
+
+    </div>
+    <!-- END recommendation-container -->
+
+</section>
+<!-- END reviewScreen -->
+
+
+<section id="decisionScreen" class="screen decision-screen decision-canvas hidden">
+    <div class="canvas-shell">
+        <header class="canvas-header">
+            <div class="canvas-heading-icon"><i data-lucide="check-check" aria-hidden="true"></i></div>
+            <div>
+                <div class="canvas-eyebrow">FINAL ARCHITECTURE DECISION</div>
+                <h1>Your Cloud Architecture Decision</h1>
+                <p>Review your architecture and confirm your choice.</p>
+            </div>
+        </header>
+
+        <div class="canvas-hero">
+            <div class="canvas-hero-title">
+                <div>
+                    <div class="canvas-eyebrow">RECOMMENDED ARCHITECTURE</div>
+                    <h2><i data-lucide="cloud-cog" aria-hidden="true"></i><span id="decisionArchitectureName"></span></h2>
+                </div>
+                <span class="canvas-recommended"><i data-lucide="check-circle-2" aria-hidden="true"></i> Recommended</span>
+            </div>
+            <p id="decisionExplanation" class="canvas-explanation"></p>
+        </div>
+
+        <section class="canvas-financial-section" aria-label="Monthly cost and budget">
+            <div class="canvas-section-heading"><span class="canvas-section-heading-icon"><i data-lucide="wallet-cards" aria-hidden="true"></i></span><h3>Cost &amp; Budget</h3></div>
+        <div class="canvas-metrics">
+            <div class="canvas-metric">
+                <div class="canvas-metric-label"><i data-lucide="receipt" aria-hidden="true"></i> Estimated monthly cost</div>
+                <strong id="decisionCost"></strong>
+            </div>
+            <div class="canvas-metric">
+                <div class="canvas-metric-label"><i data-lucide="wallet" aria-hidden="true"></i> Your monthly budget</div>
+                <strong id="decisionBudget"></strong>
+            </div>
+            <div class="canvas-metric">
+                <div class="canvas-metric-label"><i data-lucide="scale" aria-hidden="true"></i> Budget difference</div>
+                <strong id="decisionRemainingBudget"></strong>
+            </div>
+        </div>
+
+        <div id="decisionBudgetAlert" class="canvas-budget-note">
+            <i data-lucide="alert-circle" class="canvas-budget-icon" aria-hidden="true"></i>
+            <div>
+                <strong id="decisionBudgetStatus"></strong>
+                
+            </div>
+            <span class="decision-alert-symbol hidden" aria-hidden="true"></span>
+        </div>
 
         </section>
 
+        <div class="canvas-services">
+            <div class="canvas-section-title">
+                <h3><i data-lucide="layers-3" aria-hidden="true"></i> Technology stack</h3>
+                <span>AWS services in your architecture</span>
+            </div>
+            <ul id="decisionServices" class="canvas-services-list"></ul>
+        </div>
+
+        <div class="canvas-considerations">
+            <h3><i data-lucide="clipboard-list" aria-hidden="true"></i> Things to consider</h3>
+            <ul id="decisionConsiderations"></ul>
+        </div>
+
+        <div id="decisionConfirmation" class="decision-confirmation hidden">
+            <h3><i data-lucide="badge-check" aria-hidden="true"></i> Architecture Confirmed</h3>
+            <p>Your decision is saved for this session. Download your report to keep a copy.</p>
+        </div>
+
+        <div class="decision-actions canvas-actions">
+            <button id="decisionBackButton" type="button"><i data-lucide="arrow-left" aria-hidden="true"></i> Back to Review</button>
+            <button id="confirmArchitectureButton" type="button"><i data-lucide="check" aria-hidden="true"></i> Confirm Architecture</button>
+            <button id="downloadArchitectureReportButton" type="button" class="hidden"><i data-lucide="file-down" aria-hidden="true"></i> Download PDF Report</button>
+            
+        </div>
+    </div>
+</section>
+  
+
+
+        
+
+
     </main>
 
+    <section id="architecturePrintableReport" class="architecture-print-report" aria-label="Cloud architecture decision report"></section>
+
+
+    <!-- Success confirmation: appears only after a successful save and recalculation -->
+        <div id="reviewSaveSuccessToast" class="review-success-toast" role="status" aria-live="polite">
+            <span class="review-success-toast-icon" aria-hidden="true">✓</span>
+            <span><strong>Changes saved successfully</strong><small>Your recommendation has been recalculated.</small></span>
+        </div>
 
     <script src="script.js"></script>
     
