@@ -145,6 +145,12 @@ button {
         0 9px 20px rgba(79, 79, 255, 0.22);
 }
 
+.brand-icon svg {
+    width: 25px;
+    height: 25px;
+    stroke-width: 1.8;
+}
+
 
 .brand-text strong {
     display: block;
@@ -3777,10 +3783,10 @@ body::after {
     flex-shrink: 0;
     min-height: 44px;
     padding: 11px 18px;
-    background: #eef2ff;
-    color: #4355e8;
+    background: #ed9f46;
+    color: #FFFFFF;
     border: 1px solid #dce3ff;
-    border-radius: 11px;
+    border-radius: 12px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -5781,3 +5787,5 @@ body > .review-success-toast.is-visible {
 #decisionScreen .canvas-financial-section .canvas-budget-note { align-items:center; gap:10px; padding:12px 15px; }
 #decisionScreen .canvas-financial-section .canvas-budget-note strong { font-size:13px; font-weight:700; line-height:1.4; }
 #decisionScreen .canvas-financial-section .canvas-budget-note .canvas-budget-icon { width:18px; height:18px; }
+
+
