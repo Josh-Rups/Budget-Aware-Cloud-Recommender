@@ -54,7 +54,7 @@ const priorityHelp =
     // API CONFIGURATION
     // =====================================================
 
-    const API_BASE_URL = "https://budget-aware-cloud-recommender.onrender.com";
+    const API_BASE_URL = "https://hbox4rxwba.execute-api.us-east-1.amazonaws.com";
 
     // =====================================================
     // STATE

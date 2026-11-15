@@ -1,6 +1,28 @@
-.venv/
-__pycache__/
-*.pyc
+
+# Python
+**/.venv/
+.venv-lambda/
+**/__pycache__/
+**/*.pyc
 .env
+
+# Editor
 .vscode/
 .idea/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+terraform.tfvars
+*.tfvars
+*.tfvars.json
+crash.log
+
+# Lambda deployment files
+build/
+
+# Local Python version
+.python-version

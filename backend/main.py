@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from mangum import Mangum
 
 from backend.models.requirements import ApplicationRequirements
 from backend.models.architecture import ArchitectureResponse
@@ -408,3 +409,6 @@ def generate_recommendation(
         "assumptions":
             assumptions
     }
+
+
+handler = Mangum(app, lifespan="off")
