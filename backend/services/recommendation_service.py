@@ -619,88 +619,74 @@ BUDGET STATUS:
 {budget_status}
 
 
-Write a short explanation of why this architecture
-was selected.
+Write a clear explanation of why the selected architecture
+was recommended for this user.
 
+RESPONSE REQUIREMENTS:
 
-Response requirements:
-
-- Use simple and natural English.
-- Use 2 to 4 sentences.
+- Use simple, natural English.
+- Write 3 to 5 short sentences in one paragraph.
+- Address the user directly using "you" and "your".
 - Return only the explanation.
-- Do not include markdown.
-- Do not use bullet points.
+- Do not use markdown or bullet points.
+- Avoid repeating the same reason.
 
-- Explain the strongest technical reasons for
-  the selection.
+EXPLANATION STRUCTURE:
 
-- Mention the user's selected priorities when
-  they are relevant.
+1. Explain why the selected architecture fits the
+   user's application requirements.
 
-- Clearly describe priorities as preferences
-  that influenced the evaluation, not as
+2. Explain how the user's selected priorities
+   influenced the recommendation.
+   Mention relevant management, scalability,
+   availability, or infrastructure control trade-offs.
+
+3. Explain any important limitation of the selected
+   architecture, using the evaluation evidence.
+
+4. Mention the estimated monthly cost and budget.
+   State clearly whether the architecture is within
+   or over budget.
+
+5. If the architecture is over budget, explain that
+   the user may need to increase their budget or
+   reconsider their requirements.
+   Do not invent cost savings or claim that a
+   particular change will reduce costs.
+
+ACCURACY RULES:
+
+- The architecture was already selected by Python.
+  Do not select another architecture.
+
+- Do not invent reasons, requirements, services,
+  costs, or evaluation results.
+
+- Do not claim that the selected architecture is
+  cheaper than other options because their costs
+  have not been provided.
+
+- Do not claim that another architecture performs
+  worse because its evaluation has not been provided.
+
+- Explain only what the supplied evidence supports.
+
+- Treat user priorities as preferences, not
   automatically confirmed technical requirements.
 
-- If the recommended architecture does not strongly
-  satisfy one or more selected priorities, clearly
-  acknowledge those trade-offs.
+- Do not describe a preference as fully satisfied
+  when the evidence shows a trade-off.
 
-- Never describe Medium scalability as fully aligning
-  with a High scalability priority.
+- Do not say that all architecture options exceed
+  the budget unless that information was provided.
 
-- Never describe High management effort as aligning
-  with a Less infrastructure management priority.
+- Do not perform new calculations.
 
-- Never describe Medium management effort as fully
-  satisfying a Less infrastructure management priority.
+- If the user selected Balanced, explain that the
+  default evaluation weights were used.
 
-- When technical requirements conflict with user
-  priorities, explain which technical requirements
-  contributed to the selection and which user
-  priorities were compromised.
-
-- Mention important workload requirements
-  when relevant.
-
-- Mention management or infrastructure control
-  when relevant.
-
-- Mention scalability when relevant.
-
-- Only describe availability as a technical
-  requirement if availability is explicitly
-  provided in USER REQUIREMENTS.
-
-- If availability is unknown and High availability
-  is a user priority, say that High availability
-  was selected as a user priority and influenced
-  the evaluation.
-
-- If "Balanced / recommend for me" was selected,
-  explain that the default evaluation weights were
-  used.
-
-- Do not describe Balanced as increasing the
-  importance of any criterion.
-
-- Do not say that Balanced changed the evaluation
-  weights.
-
-- Mention the estimated monthly cost.
-
-- Mention the monthly budget.
-
-- Follow the provided budget status exactly.
-
-- If the architecture is over budget,
-  clearly say so.
-
-- If no architecture fits the budget, describe
-  the selected architecture as the strongest
-  overall fit based on the evaluated requirements,
-  priorities, and budget constraints.
-
-- Do not perform your own calculations.
+- Keep the explanation consistent with the supplied
+  budget status and evaluation results.
 """
 
 
@@ -724,7 +710,7 @@ Response requirements:
         ],
 
         inferenceConfig={
-            "maxTokens": 300,
+            "maxTokens": 450,
             "temperature": 0
         }
     )
